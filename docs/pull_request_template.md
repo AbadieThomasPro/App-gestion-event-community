@@ -11,7 +11,7 @@
 - [ ] CI/CD
 - [ ] Infra
 
-Supprimer l'espace et mettre un 'x' entre les crochets pour cocher.
+> Supprimer l'espace et mettre un 'x' entre les crochets pour cocher.
 ---
 
 ## 📝 Description
