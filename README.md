@@ -153,3 +153,30 @@ Exemples :
 - fix: correction d’un bug sur les inscriptions
 - docs: mise à jour du README
 - test: ajout des tests API
+
+## Convention de branches
+
+Pour vos branches de travail, le format à respecter est le suivant :
+
+[prefix]/[ticket-trello]-[description_courte]
+
+Exemple : feature/APP-12345-ajout_filtrage_expedition
+
+Les préfixes disponibles :
+• feature → nouvelle fonctionnalité
+• bugfix → correction de bug
+• hotfix → correctif urgent en prod
+• release → préparation d'une release
+• chore → tâches techniques / maintenance
+• refactor → refactoring sans changement fonctionnel
+
+## Convention de Pull Request
+
+Pour chaque PR, mettre un titre clair et structuré tel que :
+• [Type] {NO TICKET} - {Description courte}
+
+Exemples :
+• [Feature] APP-1642 – InventoryArrivedML – Flux Dematic to Queue
+• [Bugfix] APP-1632 – Changement colisage
+• [Hotfix] APP-1618 – Correction crash création création 1 article
+• [Refacto] APP-1618 - Passage au pipeline Yaml sur Azure Devops
