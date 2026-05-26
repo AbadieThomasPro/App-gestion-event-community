@@ -48,6 +48,16 @@ npm run lint      # vérifie ESLint + Prettier
 npm run format    # formate tous les fichiers
 ```
 
+
+### Commandes importantes pour le back-end
+
+Dans le dossier `back`, utilisez ces commandes pour garantir la qualité et le formatage du code :
+
+```sh
+npm run lint      # vérifie ESLint + Prettier
+npm run format    # formate tous les fichiers
+```
+
 ### Front-end : React + Vite
 
 Nous avons choisi **React** car c’est une technologie très utilisée pour créer des interfaces web dynamiques et modulaires. Elle permet de découper l’interface en composants réutilisables, ce qui facilite l’organisation du projet.
