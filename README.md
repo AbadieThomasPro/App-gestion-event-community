@@ -236,7 +236,7 @@ Exemples :
 
 ### 1. Cloner le dépôt
 ```sh
-git clone <url-du-repo>
+git clone https://github.com/AbadieThomasPro/App-gestion-event-community.git
 cd App-gestion-event-community
 ```
 
