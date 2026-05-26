@@ -240,12 +240,22 @@ git clone <url-du-repo>
 cd App-gestion-event-community
 ```
 
-### 2. Créer le fichier `.env` à la racine (exemple fourni)
+
+### 2. Configurer les fichiers `.env`
+
+#### `.env` à la racine (pour Docker Compose)
 ```env
 POSTGRES_USER=dev
 POSTGRES_PASSWORD=dev
 POSTGRES_DB=app_events
 DATABASE_URL=postgresql://dev:dev@db:5432/app_events
+```
+
+#### `back/.env` (pour développement local hors Docker)
+```env
+# URL de connexion locale (hors Docker)
+# En Docker, utiliser db comme hostname (voir docker-compose.yml)
+DATABASE_URL="postgresql://dev:dev@localhost:5432/app_events"
 ```
 
 ### 3. Lancer l'environnement de développement
