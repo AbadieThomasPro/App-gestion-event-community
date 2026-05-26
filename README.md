@@ -1,4 +1,32 @@
+
 # Plateforme de gestion d’événements communautaires connectée à Discord
+
+## Sommaire
+
+- [Installation & Lancement](#installation--lancement)
+- [Groupe](#groupe)
+- [Sujet choisi](#sujet-choisi)
+- [Gestion de projet](#gestion-de-projet)
+- [Fonctionnalités principales](#fonctionnalités-principales)
+- [Stack choisie](#stack-choisie)
+	- [Commandes importantes pour le front-end](#commandes-importantes-pour-le-front-end)
+	- [Commandes importantes pour le back-end](#commandes-importantes-pour-le-back-end)
+	- [Front-end : React + Vite](#front-end--react--vite)
+	- [Back-end : Node.js + Express.js](#back-end--nodejs--expressjs)
+	- [Base de données : PostgreSQL](#base-de-données--postgresql)
+	- [ORM : Prisma](#orm--prisma)
+- [Conteneurisation](#conteneurisation)
+- [CI/CD](#cicd)
+- [Gestion des environnements](#gestion-des-environnements)
+- [Infrastructure](#infrastructure)
+- [Orchestrateur](#orchestrateur)
+- [Monitoring](#monitoring)
+- [Alertes Discord](#alertes-discord)
+- [Convention de commits](#convention-de-commits)
+- [Convention de branches](#convention-de-branches)
+- [Convention de Pull Request](#convention-de-pull-request)
+- [Installation & Lancement](#installation--lancement)
+
 
 ## Groupe
 
@@ -37,6 +65,26 @@ Le tableau Trello permettra :
 - Monitoring de l’application et des conteneurs
 
 ## Stack choisie
+
+
+### Commandes importantes pour le front-end
+
+Dans le dossier `frontend`, utilisez ces commandes pour garantir la qualité et le formatage du code :
+
+```sh
+npm run lint      # vérifie ESLint + Prettier
+npm run format    # formate tous les fichiers
+```
+
+
+### Commandes importantes pour le back-end
+
+Dans le dossier `back`, utilisez ces commandes pour garantir la qualité et le formatage du code :
+
+```sh
+npm run lint      # vérifie ESLint + Prettier
+npm run format    # formate tous les fichiers
+```
 
 ### Front-end : React + Vite
 
@@ -180,3 +228,32 @@ Exemples :
 • [Bugfix] APP-1632 – Changement colisage
 • [Hotfix] APP-1618 – Correction crash création création 1 article
 • [Refacto] APP-1618 - Passage au pipeline Yaml sur Azure Devops
+
+## Installation & Lancement
+
+### Prérequis
+- Docker et Docker Compose installés
+
+### 1. Cloner le dépôt
+```sh
+git clone <url-du-repo>
+cd App-gestion-event-community
+```
+
+### 2. Créer le fichier `.env` à la racine (exemple fourni)
+```env
+POSTGRES_USER=dev
+POSTGRES_PASSWORD=dev
+POSTGRES_DB=app_events
+DATABASE_URL=postgresql://dev:dev@db:5432/app_events
+```
+
+### 3. Lancer l'environnement de développement
+```sh
+docker compose up
+```
+
+- Frontend : http://localhost:4200
+- Backend : http://localhost:3000
+- Adminer (gestion base de données) : http://localhost:8080  
+	(serveur : `db`, utilisateur : `dev`, mot de passe : `dev`)
