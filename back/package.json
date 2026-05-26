@@ -9,12 +9,16 @@
     "dev": "nodemon index.js",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "format": "prettier --write .",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:studio": "prisma studio",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@prisma/client": "^6.0.0",
     "express": "^5.2.1"
   },
   "devDependencies": {
@@ -24,6 +28,7 @@
     "eslint-plugin-prettier": "^5.5.5",
     "globals": "^17.6.0",
     "nodemon": "^3.1.14",
-    "prettier": "^3.8.3"
+    "prettier": "^3.8.3",
+    "prisma": "^6.0.0"
   }
 }
