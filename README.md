@@ -15,6 +15,10 @@
 	- [Back-end : Node.js + Express.js](#back-end--nodejs--expressjs)
 	- [Base de données : PostgreSQL](#base-de-données--postgresql)
 	- [ORM : Prisma](#orm--prisma)
+- [Modèle de données](#modèle-de-données)
+	- [User](#user)
+	- [Event](#event)
+	- [Registration](#registration)
 - [Conteneurisation](#conteneurisation)
 - [CI/CD](#cicd)
 - [Gestion des environnements](#gestion-des-environnements)
@@ -106,6 +110,62 @@ Nous avons choisi **PostgreSQL** car c’est une base de données relationnelle 
 
 Nous avons choisi **Prisma** pour simplifier les échanges entre le back-end et la base de données. Prisma permet de définir les modèles de données clairement, de générer les migrations et d’écrire des requêtes plus lisibles qu’avec du SQL brut.
 
+## Modèle de données
+
+Cette section documente les modèles Prisma au fur et à mesure de leur création, afin de garder une vue d’ensemble du schéma de base de données. Le schéma complet est disponible dans [`back/prisma/schema.prisma`](./back/prisma/schema.prisma).
+
+### User
+
+Représente un compte utilisateur de la plateforme (utilisateur, organisateur ou administrateur).
+
+| Champ           | Type      | Description                                                            |
+|-----------------|-----------|--------------------------------------------------------------------------|
+| id              | String    | Identifiant unique (UUID)                                                |
+| email           | String    | Email, unique, utilisé pour la connexion                                 |
+| password        | String    | Mot de passe hashé                                                       |
+| name            | String    | Nom affiché de l’utilisateur                                             |
+| role            | Role      | Rôle : `USER`, `ORGANIZER` ou `ADMIN` (défaut `USER`)                    |
+| discordId       | String?   | Identifiant Discord lié au compte (optionnel), pour les notifications    |
+| avatar          | String?   | URL de la photo de profil (optionnel)                                    |
+| isActive        | Boolean   | Permet de désactiver un compte sans le supprimer (défaut `true`)         |
+| emailVerified   | Boolean   | Indique si l’email a été vérifié (défaut `false`)                        |
+| createdAt       | DateTime  | Date de création                                                          |
+| updatedAt       | DateTime  | Date de dernière modification                                            |
+
+### Event
+
+Représente un événement communautaire créé par un organisateur ou un administrateur.
+
+| Champ            | Type        | Description                                                              |
+|------------------|-------------|----------------------------------------------------------------------------|
+| id               | String      | Identifiant unique (UUID)                                                |
+| title            | String      | Titre de l’événement                                                     |
+| description      | String      | Description de l’événement                                              |
+| date             | DateTime    | Date et heure de début                                                  |
+| endDate          | DateTime?   | Date et heure de fin (optionnel)                                        |
+| location         | String      | Lieu de l’événement (adresse, ou "en ligne")                            |
+| capacity         | Int?        | Nombre maximum de participants (optionnel, pas de limite si vide)       |
+| status           | EventStatus | Statut : `DRAFT`, `PUBLISHED` ou `CANCELLED` (défaut `DRAFT`)            |
+| discordChannelId | String?     | Identifiant du salon Discord lié à l’événement (optionnel)              |
+| discordMessageId | String?     | Identifiant du message Discord d’annonce (optionnel)                    |
+| creatorId        | String      | Référence vers le `User` qui a créé l’événement                         |
+| createdAt        | DateTime    | Date de création                                                          |
+| updatedAt        | DateTime    | Date de dernière modification                                            |
+
+### Registration
+
+Représente l’inscription d’un utilisateur (`User`) à un événement (`Event`).
+
+| Champ     | Type               | Description                                                              |
+|-----------|--------------------|----------------------------------------------------------------------------|
+| id        | String             | Identifiant unique (UUID)                                                |
+| userId    | String             | Référence vers le `User` inscrit                                         |
+| eventId   | String             | Référence vers l’`Event` concerné                                        |
+| status    | RegistrationStatus | Statut : `CONFIRMED`, `CANCELLED` ou `WAITLISTED` (défaut `CONFIRMED`)   |
+| createdAt | DateTime           | Date d’inscription                                                        |
+
+Un utilisateur ne peut s’inscrire qu’une seule fois au même événement (contrainte unique sur `userId` + `eventId`).
+
 ## Conteneurisation
 
 L’application sera conteneurisée avec **Docker**.
@@ -135,11 +195,10 @@ L’utilisation de GitHub Actions permettra d’automatiser les vérifications d
 
 ## Gestion des environnements
 
-Nous prévoirons plusieurs environnements :
+Nous prévoirons deux environnements, chacun associé à une branche :
 
-- développement
-- staging
-- production
+- `develop` → environnement de dev / intégration (INT)
+- `main` → environnement de production (prod)
 
 Chaque environnement pourra avoir sa propre configuration grâce aux variables d’environnement, par exemple :
 
