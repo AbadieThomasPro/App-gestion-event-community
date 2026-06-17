@@ -15,6 +15,8 @@
 	- [Back-end : Node.js + Express.js](#back-end--nodejs--expressjs)
 	- [Base de données : PostgreSQL](#base-de-données--postgresql)
 	- [ORM : Prisma](#orm--prisma)
+- [Modèle de données](#modèle-de-données)
+	- [User](#user)
 - [Conteneurisation](#conteneurisation)
 - [CI/CD](#cicd)
 - [Gestion des environnements](#gestion-des-environnements)
@@ -106,6 +108,28 @@ Nous avons choisi **PostgreSQL** car c’est une base de données relationnelle 
 
 Nous avons choisi **Prisma** pour simplifier les échanges entre le back-end et la base de données. Prisma permet de définir les modèles de données clairement, de générer les migrations et d’écrire des requêtes plus lisibles qu’avec du SQL brut.
 
+## Modèle de données
+
+Cette section documente les modèles Prisma au fur et à mesure de leur création, afin de garder une vue d’ensemble du schéma de base de données. Le schéma complet est disponible dans [`back/prisma/schema.prisma`](./back/prisma/schema.prisma).
+
+### User
+
+Représente un compte utilisateur de la plateforme (utilisateur, organisateur ou administrateur).
+
+| Champ           | Type      | Description                                                            |
+|-----------------|-----------|--------------------------------------------------------------------------|
+| id              | String    | Identifiant unique (UUID)                                                |
+| email           | String    | Email, unique, utilisé pour la connexion                                 |
+| password        | String    | Mot de passe hashé                                                       |
+| name            | String    | Nom affiché de l’utilisateur                                             |
+| role            | Role      | Rôle : `USER`, `ORGANIZER` ou `ADMIN` (défaut `USER`)                    |
+| discordId       | String?   | Identifiant Discord lié au compte (optionnel), pour les notifications    |
+| avatar          | String?   | URL de la photo de profil (optionnel)                                    |
+| isActive        | Boolean   | Permet de désactiver un compte sans le supprimer (défaut `true`)         |
+| emailVerified   | Boolean   | Indique si l’email a été vérifié (défaut `false`)                        |
+| createdAt       | DateTime  | Date de création                                                          |
+| updatedAt       | DateTime  | Date de dernière modification                                            |
+
 ## Conteneurisation
 
 L’application sera conteneurisée avec **Docker**.
@@ -135,11 +159,10 @@ L’utilisation de GitHub Actions permettra d’automatiser les vérifications d
 
 ## Gestion des environnements
 
-Nous prévoirons plusieurs environnements :
+Nous prévoirons deux environnements, chacun associé à une branche :
 
-- développement
-- staging
-- production
+- `develop` → environnement de dev / intégration (INT)
+- `main` → environnement de production (prod)
 
 Chaque environnement pourra avoir sa propre configuration grâce aux variables d’environnement, par exemple :
 
