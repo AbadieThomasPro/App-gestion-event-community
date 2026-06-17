@@ -17,6 +17,8 @@
 	- [ORM : Prisma](#orm--prisma)
 - [Modèle de données](#modèle-de-données)
 	- [User](#user)
+	- [Event](#event)
+	- [Registration](#registration)
 - [Conteneurisation](#conteneurisation)
 - [CI/CD](#cicd)
 - [Gestion des environnements](#gestion-des-environnements)
@@ -129,6 +131,40 @@ Représente un compte utilisateur de la plateforme (utilisateur, organisateur ou
 | emailVerified   | Boolean   | Indique si l’email a été vérifié (défaut `false`)                        |
 | createdAt       | DateTime  | Date de création                                                          |
 | updatedAt       | DateTime  | Date de dernière modification                                            |
+
+### Event
+
+Représente un événement communautaire créé par un organisateur ou un administrateur.
+
+| Champ            | Type        | Description                                                              |
+|------------------|-------------|----------------------------------------------------------------------------|
+| id               | String      | Identifiant unique (UUID)                                                |
+| title            | String      | Titre de l’événement                                                     |
+| description      | String      | Description de l’événement                                              |
+| date             | DateTime    | Date et heure de début                                                  |
+| endDate          | DateTime?   | Date et heure de fin (optionnel)                                        |
+| location         | String      | Lieu de l’événement (adresse, ou "en ligne")                            |
+| capacity         | Int?        | Nombre maximum de participants (optionnel, pas de limite si vide)       |
+| status           | EventStatus | Statut : `DRAFT`, `PUBLISHED` ou `CANCELLED` (défaut `DRAFT`)            |
+| discordChannelId | String?     | Identifiant du salon Discord lié à l’événement (optionnel)              |
+| discordMessageId | String?     | Identifiant du message Discord d’annonce (optionnel)                    |
+| creatorId        | String      | Référence vers le `User` qui a créé l’événement                         |
+| createdAt        | DateTime    | Date de création                                                          |
+| updatedAt        | DateTime    | Date de dernière modification                                            |
+
+### Registration
+
+Représente l’inscription d’un utilisateur (`User`) à un événement (`Event`).
+
+| Champ     | Type               | Description                                                              |
+|-----------|--------------------|----------------------------------------------------------------------------|
+| id        | String             | Identifiant unique (UUID)                                                |
+| userId    | String             | Référence vers le `User` inscrit                                         |
+| eventId   | String             | Référence vers l’`Event` concerné                                        |
+| status    | RegistrationStatus | Statut : `CONFIRMED`, `CANCELLED` ou `WAITLISTED` (défaut `CONFIRMED`)   |
+| createdAt | DateTime           | Date d’inscription                                                        |
+
+Un utilisateur ne peut s’inscrire qu’une seule fois au même événement (contrainte unique sur `userId` + `eventId`).
 
 ## Conteneurisation
 
