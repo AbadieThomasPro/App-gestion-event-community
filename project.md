@@ -26,25 +26,27 @@ Les 2 projets ont été créés via `vercel link` (CLI), sans connexion Git (pas
 
 ## 1. Base de données (Neon)
 
-1. Créer la base via le dashboard Vercel → `Storage` → `Create Database` → `Postgres` (intégration Neon), ou directement sur neon.tech.
-2. Récupérer deux connection strings :
+1. Créer la base via le dashboard Vercel → `Storage` → `Create Database` → `Postgres` (intégration Neon), puis la connecter au projet `backend` (Production + Preview + Development).
+2. L'intégration injecte automatiquement les variables d'environnement du projet `backend` sur Vercel, avec ses propres noms :
    - `DATABASE_URL` : connexion **pooled** (via PgBouncer), utilisée par l'app au runtime.
-   - `DIRECT_DATABASE_URL` : connexion **directe**, utilisée pour les migrations Prisma.
-3. Mettre à jour `backend/prisma/schema.prisma` pour exposer les deux :
+   - `DATABASE_URL_UNPOOLED` : connexion **directe**, utilisée pour les migrations Prisma.
+
+   Ces variables sont marquées **Sensitive** par Vercel : leur valeur n'est plus jamais lisible après coup (ni via `vercel env pull`, ni via l'API), seulement utilisable au runtime sur Vercel. Pour les récupérer en local, passer par la **console Neon** directement (lien "Open in Neon" depuis l'onglet Storage, ou neon.tech), section Connection Details — la connexion directe est la même URL que la pooled, sans le suffixe `-pooler` dans le hostname.
+3. `backend/prisma/schema.prisma` expose les deux :
 
    ```prisma
    datasource db {
      provider  = "postgresql"
      url       = env("DATABASE_URL")
-     directUrl = env("DIRECT_DATABASE_URL")
+     directUrl = env("DATABASE_URL_UNPOOLED")
    }
    ```
 
-4. Appliquer le schéma sur Neon depuis le poste local (pas encore automatisé en CI) :
+4. Appliquer le schéma sur Neon depuis le poste local (pas encore automatisé en CI), avec `backend/.env` renseigné avec les deux variables ci-dessus :
 
    ```sh
    cd backend
-   DATABASE_URL="<pooled>" DIRECT_DATABASE_URL="<direct>" npx prisma migrate deploy
+   npx prisma migrate deploy
    ```
 
 ## 2. Adapter le back-end au serverless
@@ -131,7 +133,7 @@ Importer `prisma` depuis ce fichier partout où on a besoin du client (au lieu d
 | Variable | Production | Preview |
 |---|---|---|
 | `DATABASE_URL` | connexion pooled Neon (prod) | connexion pooled Neon (dev/INT) |
-| `DIRECT_DATABASE_URL` | connexion directe Neon (prod) | connexion directe Neon (dev/INT) |
+| `DATABASE_URL_UNPOOLED` | connexion directe Neon (prod) | connexion directe Neon (dev/INT) |
 | `FRONTEND_URL` | URL du projet front en Production | URL preview du front |
 | `JWT_SECRET` | à ajouter quand l'auth sera implémentée | idem |
 | `DISCORD_WEBHOOK_URL` | à ajouter quand les notifs Discord seront implémentées | idem |
@@ -158,15 +160,15 @@ Penser aussi à créer l'environnement GitHub `prod` (`Settings > Environments`)
 
 ## 6. Checklist premier déploiement
 
-- [ ] Base Neon créée, `DATABASE_URL` + `DIRECT_DATABASE_URL` récupérées
-- [ ] `schema.prisma` mis à jour avec `directUrl`
+- [x] Base Neon créée, `DATABASE_URL` + `DATABASE_URL_UNPOOLED` récupérées
+- [x] `schema.prisma` mis à jour avec `directUrl`
 - [x] `backend/app.js`, `backend/index.js`, `backend/api/index.js`, `backend/vercel.json` créés/adaptés
 - [x] `cors` installé et configuré
-- [ ] Singleton Prisma (`backend/lib/prisma.js`) en place
+- [x] Singleton Prisma (`backend/lib/prisma.js`) en place
 - [ ] Variables d'environnement renseignées (Production + Preview) sur les deux projets Vercel
 - [x] Les 4 secrets GitHub ajoutés (tableau ci-dessus)
 - [x] Environnement GitHub `prod` créé
-- [ ] `npx prisma migrate deploy` exécuté contre Neon
+- [x] `npx prisma migrate deploy` exécuté contre Neon
 - [ ] Déploiement vérifié : `GET /` sur l'URL du backend répond, le front affiche bien la page
 
 ## Règles pour la suite (ajout de features back)
