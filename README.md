@@ -83,7 +83,7 @@ npm run format    # formate tous les fichiers
 
 ### Commandes importantes pour le back-end
 
-Dans le dossier `back`, utilisez ces commandes pour garantir la qualité et le formatage du code :
+Dans le dossier `backend`, utilisez ces commandes pour garantir la qualité et le formatage du code :
 
 ```sh
 npm run lint      # vérifie ESLint + Prettier
@@ -112,7 +112,7 @@ Nous avons choisi **Prisma** pour simplifier les échanges entre le back-end et 
 
 ## Modèle de données
 
-Cette section documente les modèles Prisma au fur et à mesure de leur création, afin de garder une vue d’ensemble du schéma de base de données. Le schéma complet est disponible dans [`back/prisma/schema.prisma`](./back/prisma/schema.prisma).
+Cette section documente les modèles Prisma au fur et à mesure de leur création, afin de garder une vue d’ensemble du schéma de base de données. Le schéma complet est disponible dans [`backend/prisma/schema.prisma`](./backend/prisma/schema.prisma).
 
 ### User
 
@@ -179,6 +179,8 @@ Chaque partie du projet sera lancée dans un conteneur séparé :
 
 Nous utiliserons **Docker Compose** en environnement de développement afin de lancer facilement tous les services avec une seule commande.
 
+En production, le déploiement ne repose plus sur ces conteneurs mais sur **Vercel** (voir [Infrastructure](#infrastructure) et [`project.md`](./project.md)).
+
 ## CI/CD
 
 Nous mettrons en place une pipeline CI/CD avec **GitHub Actions**.
@@ -188,17 +190,17 @@ La pipeline contiendra plusieurs étapes :
 - lint : vérification de la qualité du code
 - test : exécution des tests automatisés
 - build : construction de l’application
-- build Docker : création des images Docker
-- deploy : déploiement de l’application sur le serveur
+- build Docker : création des images Docker (environnement de développement uniquement)
+- deploy : déploiement automatique sur **Vercel** via son intégration Git native (production sur `main`, preview sur les autres branches/PR)
 
-L’utilisation de GitHub Actions permettra d’automatiser les vérifications du projet à chaque push ou pull request afin de limiter les erreurs et améliorer la qualité du code.
+L’utilisation de GitHub Actions permettra d’automatiser les vérifications du projet à chaque push ou pull request afin de limiter les erreurs et améliorer la qualité du code. Le détail de la mise en place du déploiement Vercel est documenté dans [`project.md`](./project.md).
 
 ## Gestion des environnements
 
 Nous prévoirons deux environnements, chacun associé à une branche :
 
-- `develop` → environnement de dev / intégration (INT)
-- `main` → environnement de production (prod)
+- `develop` → environnement de dev / intégration (INT), déploiement **Preview** sur Vercel
+- `main` → environnement de production (prod), déploiement **Production** sur Vercel
 
 Chaque environnement pourra avoir sa propre configuration grâce aux variables d’environnement, par exemple :
 
@@ -211,31 +213,32 @@ Les fichiers sensibles ne seront pas versionnés dans Git.
 
 ## Infrastructure
 
-L’application sera déployée sur un serveur sécurisé.
+> ⚠️ Plan initial (abandonné) : déploiement sur un serveur sécurisé en SSH.
+> - connexion SSH par clé
+> - utilisateur dédié pour le déploiement
+> - désactivation de la connexion root si nécessaire
+> - variables d’environnement sécurisées
 
-Les bonnes pratiques prévues sont :
+Nous déployons finalement sur **Vercel** :
 
-- connexion SSH par clé
-- utilisateur dédié pour le déploiement
-- désactivation de la connexion root si nécessaire
-- variables d’environnement sécurisées
+- le front-end et le back-end sont déployés comme deux projets Vercel distincts, connectés au même dépôt GitHub
+- la base de données PostgreSQL est hébergée chez **Neon** (intégration "Vercel Postgres"), compatible avec les fonctions serverless
+- aucune gestion de serveur (SSH, OS, mises à jour système) n’est nécessaire, Vercel gère l’infrastructure
+- les variables sensibles sont stockées dans les paramètres de chaque projet Vercel, par environnement (Production / Preview)
+
+Voir [`project.md`](./project.md) pour le détail de la mise en place.
 
 ## Orchestrateur
 
-Nous prévoyons d’utiliser **Docker Swarm** comme orchestrateur.
+> ⚠️ Plan initial (abandonné) : nous prévoyions d’utiliser **Docker Swarm** comme orchestrateur, plus simple à prendre en main que Kubernetes pour gérer plusieurs services et le redémarrage automatique des conteneurs.
 
-Docker Swarm est plus simple à prendre en main que Kubernetes tout en permettant de gérer plusieurs services, le redémarrage automatique des conteneurs et le déploiement d’une application conteneurisée.
+Avec le passage à **Vercel**, l’application tourne en serverless : il n’y a plus de conteneurs à orchestrer, Vercel gère nativement le scaling et le redémarrage des fonctions.
 
 ## Monitoring
 
-Nous mettrons en place un système de monitoring pour surveiller l’état de l’application et de l’infrastructure.
+> ⚠️ Plan initial (abandonné) : **Prometheus** (métriques), **Grafana** (tableaux de bord) et **Loki** (centralisation des logs), en complément du webhook Discord pour les alertes.
 
-Outils envisagés :
-
-- **Prometheus** pour récupérer les métriques
-- **Grafana** pour afficher les tableaux de bord
-- **Loki** pour centraliser les logs
-- webhook Discord pour envoyer des alertes
+Sur Vercel, ces outils ne s’appliquent plus tels quels (pas de conteneurs ni de serveur à superviser). À redéfinir si besoin avec les outils natifs de Vercel (Logs, Observability) le moment venu.
 
 ## Alertes Discord
 
@@ -310,7 +313,7 @@ POSTGRES_DB=app_events
 DATABASE_URL=postgresql://dev:dev@db:5432/app_events
 ```
 
-#### `back/.env` (pour développement local hors Docker)
+#### `backend/.env` (pour développement local hors Docker)
 ```env
 # URL de connexion locale (hors Docker)
 # En Docker, utiliser db comme hostname (voir docker-compose.yml)

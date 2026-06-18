@@ -26,14 +26,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: back
+        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: back/package-lock.json
+          cache-dependency-path: backend/package-lock.json
       - run: npm ci
       - run: npm run lint
 
@@ -56,10 +56,10 @@ jobs:
   build-backend:
     runs-on: ubuntu-latest
     needs: lint-backend
-    environment: dev
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
     defaults:
       run:
-        working-directory: back
+        working-directory: backend
     env:
       DATABASE_URL: ${{ vars.DATABASE_URL }}
     steps:
@@ -68,6 +68,44 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: back/package-lock.json
+          cache-dependency-path: backend/package-lock.json
       - run: npm ci
       - run: npx prisma generate
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: build-frontend
+    if: github.event_name == 'push'
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global vercel
+      - run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=$VERCEL_TOKEN
+      - run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
+      - run: vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
+
+  deploy-backend:
+    runs-on: ubuntu-latest
+    needs: build-backend
+    if: github.event_name == 'push'
+    environment: ${{ github.ref == 'refs/heads/main' && 'prod' || 'dev' }}
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID_BACKEND }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm install --global vercel
+      - run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=$VERCEL_TOKEN
+      - run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
+      - run: vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
