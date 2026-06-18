@@ -165,7 +165,7 @@ Penser aussi à créer l'environnement GitHub `prod` (`Settings > Environments`)
 - [x] `backend/app.js`, `backend/index.js`, `backend/api/index.js`, `backend/vercel.json` créés/adaptés
 - [x] `cors` installé et configuré
 - [x] Singleton Prisma (`backend/lib/prisma.js`) en place
-- [ ] Variables d'environnement renseignées (Production + Preview) sur les deux projets Vercel
+- [x] Variables d'environnement renseignées (Production + Preview) sur les deux projets Vercel
 - [x] Les 4 secrets GitHub ajoutés (tableau ci-dessus)
 - [x] Environnement GitHub `prod` créé
 - [x] `npx prisma migrate deploy` exécuté contre Neon
