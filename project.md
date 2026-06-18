@@ -169,7 +169,7 @@ Penser aussi à créer l'environnement GitHub `prod` (`Settings > Environments`)
 - [x] Les 4 secrets GitHub ajoutés (tableau ci-dessus)
 - [x] Environnement GitHub `prod` créé
 - [x] `npx prisma migrate deploy` exécuté contre Neon
-- [ ] Déploiement vérifié : `GET /` sur l'URL du backend répond, le front affiche bien la page
+- [x] Déploiement vérifié : `GET /` sur l'URL du backend répond, le front affiche bien la page
 
 ## Règles pour la suite (ajout de features back)
 
