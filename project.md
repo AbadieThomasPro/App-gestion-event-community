@@ -160,12 +160,12 @@ Penser aussi à créer l'environnement GitHub `prod` (`Settings > Environments`)
 
 - [ ] Base Neon créée, `DATABASE_URL` + `DIRECT_DATABASE_URL` récupérées
 - [ ] `schema.prisma` mis à jour avec `directUrl`
-- [ ] `backend/app.js`, `backend/index.js`, `backend/api/index.js`, `backend/vercel.json` créés/adaptés
-- [ ] `cors` installé et configuré
+- [x] `backend/app.js`, `backend/index.js`, `backend/api/index.js`, `backend/vercel.json` créés/adaptés
+- [x] `cors` installé et configuré
 - [ ] Singleton Prisma (`backend/lib/prisma.js`) en place
 - [ ] Variables d'environnement renseignées (Production + Preview) sur les deux projets Vercel
-- [ ] Les 4 secrets GitHub ajoutés (tableau ci-dessus)
-- [ ] Environnement GitHub `prod` créé
+- [x] Les 4 secrets GitHub ajoutés (tableau ci-dessus)
+- [x] Environnement GitHub `prod` créé
 - [ ] `npx prisma migrate deploy` exécuté contre Neon
 - [ ] Déploiement vérifié : `GET /` sur l'URL du backend répond, le front affiche bien la page
 
