@@ -1,0 +1,8 @@
+echo "[pre-push] lint backend"
+(cd backend && npm run lint) || exit 1
+
+echo "[pre-push] lint frontend"
+(cd frontend && npm run lint) || exit 1
+
+echo "[pre-push] test backend"
+(cd backend && npm test) || exit 1
