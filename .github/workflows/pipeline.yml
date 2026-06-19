@@ -89,7 +89,10 @@ jobs:
       - run: npm install --global vercel
       - run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=$VERCEL_TOKEN
       - run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
-      - run: vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
+      - id: deploy
+        run: echo "url=$(vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN)" >> "$GITHUB_OUTPUT"
+      - if: github.ref != 'refs/heads/main'
+        run: vercel alias set ${{ steps.deploy.outputs.url }} gestion-event-discord-front-preview.vercel.app --token=$VERCEL_TOKEN
 
   deploy-backend:
     runs-on: ubuntu-latest
@@ -108,4 +111,7 @@ jobs:
       - run: npm install --global vercel
       - run: vercel pull --yes --environment=${{ github.ref == 'refs/heads/main' && 'production' || 'preview' }} --token=$VERCEL_TOKEN
       - run: vercel build ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
-      - run: vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN
+      - id: deploy
+        run: echo "url=$(vercel deploy --prebuilt ${{ github.ref == 'refs/heads/main' && '--prod' || '' }} --token=$VERCEL_TOKEN)" >> "$GITHUB_OUTPUT"
+      - if: github.ref != 'refs/heads/main'
+        run: vercel alias set ${{ steps.deploy.outputs.url }} gestion-event-discord-back-preview.vercel.app --token=$VERCEL_TOKEN
