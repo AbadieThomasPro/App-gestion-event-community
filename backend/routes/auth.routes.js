@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import bcrypt from 'bcryptjs'
 import { prisma } from '../lib/prisma.js'
+import { authenticate } from '../middlewares/authenticate.middleware.js'
 
 const router = Router()
 
@@ -45,6 +46,10 @@ router.post('/register', async (req, res) => {
   })
 
   res.status(201).json(user)
+})
+
+router.get('/me', authenticate, (req, res) => {
+  res.json(req.user)
 })
 
 export default router
