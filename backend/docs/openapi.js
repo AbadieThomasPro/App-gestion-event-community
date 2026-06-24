@@ -36,6 +36,28 @@ const eventProperties = {
   updatedAt: { type: 'string', format: 'date-time', readOnly: true },
 }
 
+const userProperties = {
+  id: {
+    type: 'string',
+    format: 'uuid',
+    readOnly: true,
+    example: '52b38672-bba3-40cc-82c4-7f7df00898b3',
+  },
+  email: { type: 'string', format: 'email', example: 'jane@example.com' },
+  name: { type: 'string', example: 'Jane Doe' },
+  role: {
+    type: 'string',
+    enum: ['USER', 'ORGANIZER', 'ADMIN'],
+    default: 'USER',
+  },
+  discordId: { type: 'string', nullable: true, example: null },
+  avatar: { type: 'string', nullable: true, example: null },
+  isActive: { type: 'boolean', default: true },
+  emailVerified: { type: 'boolean', default: false },
+  createdAt: { type: 'string', format: 'date-time', readOnly: true },
+  updatedAt: { type: 'string', format: 'date-time', readOnly: true },
+}
+
 const errorResponses = {
   400: {
     description: 'Données invalides',
@@ -71,8 +93,72 @@ export const openApiDocument = {
     description: 'Documentation des routes de gestion des événements Discord.',
   },
   servers: [{ url: '/', description: 'Serveur courant' }],
-  tags: [{ name: 'Events', description: 'Consultation et gestion des événements' }],
+  tags: [
+    { name: 'Events', description: 'Consultation et gestion des événements' },
+    { name: 'Auth', description: 'Inscription et connexion des utilisateurs' },
+  ],
   paths: {
+    '/auth/register': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Créer un compte utilisateur',
+        operationId: 'registerUser',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/RegisterInput' },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: 'Compte créé',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/User' },
+              },
+            },
+          },
+          400: errorResponses[400],
+          409: {
+            description: 'Un compte existe déjà avec cet email',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/auth/login': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Se connecter',
+        operationId: 'loginUser',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/LoginInput' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Connexion réussie',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/LoginResponse' },
+              },
+            },
+          },
+          400: errorResponses[400],
+          401: errorResponses[401],
+        },
+      },
+    },
     '/events': {
       get: {
         tags: ['Events'],
@@ -249,6 +335,50 @@ export const openApiDocument = {
         required: ['message'],
         properties: {
           message: { type: 'string', example: 'événement introuvable' },
+        },
+      },
+      User: {
+        type: 'object',
+        required: [
+          'id',
+          'email',
+          'name',
+          'role',
+          'isActive',
+          'emailVerified',
+          'createdAt',
+          'updatedAt',
+        ],
+        properties: userProperties,
+      },
+      RegisterInput: {
+        type: 'object',
+        required: ['email', 'password', 'name'],
+        properties: {
+          email: userProperties.email,
+          password: { type: 'string', format: 'password', minLength: 8, example: 'password123' },
+          name: userProperties.name,
+        },
+      },
+      LoginInput: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+          email: userProperties.email,
+          password: { type: 'string', format: 'password', example: 'password123' },
+        },
+      },
+      LoginResponse: {
+        type: 'object',
+        required: ['token', 'user'],
+        properties: {
+          token: {
+            type: 'string',
+            format: 'jwt',
+            readOnly: true,
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+          user: { $ref: '#/components/schemas/User' },
         },
       },
     },
