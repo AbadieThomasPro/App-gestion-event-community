@@ -314,11 +314,29 @@ DATABASE_URL=postgresql://dev:dev@db:5432/app_events
 ```
 
 #### `backend/.env` (pour développement local hors Docker)
-```env
-# URL de connexion locale (hors Docker)
-# En Docker, utiliser db comme hostname (voir docker-compose.yml)
-DATABASE_URL="postgresql://dev:dev@localhost:5432/app_events"
+
+Copier `backend/.env.example` vers `backend/.env` et adapter les valeurs si besoin :
+```sh
+cp backend/.env.example backend/.env
 ```
+
+| Variable | Description |
+|---|---|
+| `DATABASE_URL` | Connexion Postgres locale (hors Docker, hostname `localhost`) |
+| `DATABASE_URL_UNPOOLED` | Connexion directe, utilisée par les migrations Prisma (identique à `DATABASE_URL` en local) |
+| `JWT_SECRET` | Secret de signature/vérification des JWT |
+| `FRONTEND_URL` | Origine autorisée par CORS pour les requêtes du frontend (`http://localhost:4200` en local) |
+
+#### `frontend/.env` (optionnel en local, requis en déploiement)
+
+Copier `frontend/.env.example` vers `frontend/.env` :
+```sh
+cp frontend/.env.example frontend/.env
+```
+
+| Variable | Description |
+|---|---|
+| `VITE_API_URL` | URL de base de l'API backend (`http://localhost:3000` en local) |
 
 ### 3. Lancer l'environnement de développement
 ```sh
