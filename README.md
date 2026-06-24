@@ -90,6 +90,10 @@ npm run lint      # vérifie ESLint + Prettier
 npm run format    # formate tous les fichiers
 ```
 
+Une fois le backend lancé, la documentation Swagger des routes `events` est disponible sur
+[`http://localhost:3000/api-docs`](http://localhost:3000/api-docs). Le document OpenAPI brut
+est également exposé sur [`http://localhost:3000/api-docs.json`](http://localhost:3000/api-docs.json).
+
 ### Front-end : React + Vite
 
 Nous avons choisi **React** car c’est une technologie très utilisée pour créer des interfaces web dynamiques et modulaires. Elle permet de découper l’interface en composants réutilisables, ce qui facilite l’organisation du projet.
