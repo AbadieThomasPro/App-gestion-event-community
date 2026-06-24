@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { login } from '../../api/auth'
+import { register, login } from '../../api/auth'
 import { useAuth } from '../../context/useAuth'
-import './LoginPage.css'
+import './RegisterPage.css'
 
-function LoginPage() {
+function RegisterPage() {
   const navigate = useNavigate()
   const { signIn } = useAuth()
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -18,6 +19,7 @@ function LoginPage() {
     setIsSubmitting(true)
 
     try {
+      await register({ name, email, password })
       const { token, user } = await login({ email, password })
       signIn({ token, user })
       navigate('/')
@@ -29,9 +31,19 @@ function LoginPage() {
   }
 
   return (
-    <section id="login">
-      <h1>Connexion</h1>
+    <section id="register">
+      <h1>Inscription</h1>
       <form onSubmit={handleSubmit}>
+        <label htmlFor="name">Nom</label>
+        <input
+          id="name"
+          type="text"
+          autoComplete="name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          required
+        />
+
         <label htmlFor="email">Email</label>
         <input
           id="email"
@@ -46,23 +58,24 @@ function LoginPage() {
         <input
           id="password"
           type="password"
-          autoComplete="current-password"
+          autoComplete="new-password"
+          minLength={8}
           value={password}
           onChange={(event) => setPassword(event.target.value)}
           required
         />
 
-        {error && <p className="login-error">{error}</p>}
+        {error && <p className="register-error">{error}</p>}
 
         <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Connexion...' : 'Se connecter'}
+          {isSubmitting ? 'Inscription...' : "S'inscrire"}
         </button>
       </form>
       <p>
-        Pas encore de compte ? <Link to="/register">S&apos;inscrire</Link>
+        Déjà un compte ? <Link to="/login">Se connecter</Link>
       </p>
     </section>
   )
 }
 
-export default LoginPage
+export default RegisterPage

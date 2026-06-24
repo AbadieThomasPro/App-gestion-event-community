@@ -2,17 +2,24 @@ import { useState } from 'react'
 import reactLogo from '../../assets/react.svg'
 import viteLogo from '../../assets/vite.svg'
 import heroImg from '../../assets/hero.png'
-import { getStoredUser } from '../../api/authStorage'
+import { useAuth } from '../../context/useAuth'
 import './HomePage.css'
 
 function HomePage() {
   const [count, setCount] = useState(0)
-  const user = getStoredUser()
+  const { user, signOut } = useAuth()
 
   return (
     <>
       <section id="center">
-        {user && <p className="welcome">Connecté en tant que {user.name}</p>}
+        {user && (
+          <p className="welcome">
+            Connecté en tant que {user.name}{' '}
+            <button type="button" className="logout" onClick={signOut}>
+              Se déconnecter
+            </button>
+          </p>
+        )}
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
           <img src={reactLogo} className="framework" alt="React logo" />
