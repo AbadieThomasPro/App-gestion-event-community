@@ -6,3 +6,6 @@ echo "[pre-push] lint frontend"
 
 echo "[pre-push] test backend"
 (cd backend && npm test) || exit 1
+
+echo "[pre-push] test frontend"
+(cd frontend && npm test) || exit 1
