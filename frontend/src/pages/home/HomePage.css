@@ -1,3 +1,8 @@
+.welcome {
+  color: var(--accent);
+  font-weight: 500;
+}
+
 .counter {
   font-size: 16px;
   padding: 5px 10px;
