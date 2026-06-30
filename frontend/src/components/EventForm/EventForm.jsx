@@ -126,15 +126,15 @@ function EventForm({
         />
       </label>
 
-      {error && <p className="event-form-error">{error}</p>}
+      {error && <p className="message error-message full-field">{error}</p>}
 
       <div className="event-form-actions full-field">
         {onCancel && (
-          <button type="button" className="btn btn-ghost" onClick={onCancel}>
+          <button type="button" className="ghost-button" onClick={onCancel}>
             Annuler
           </button>
         )}
-        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
+        <button type="submit" className="primary-button" disabled={isSubmitting}>
           {isSubmitting ? 'Enregistrement...' : submitLabel}
         </button>
       </div>

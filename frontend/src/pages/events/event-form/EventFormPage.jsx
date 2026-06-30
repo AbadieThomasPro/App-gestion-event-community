@@ -49,15 +49,20 @@ function EventFormPage() {
 
   return (
     <section id="event-form">
-      <h1>{isEditing ? "Modifier l'événement" : 'Créer un événement'}</h1>
-      <EventForm
-        key={id ?? 'new'}
-        initialValues={initialValues}
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-        error={error}
-        submitLabel={isEditing ? 'Enregistrer' : "Créer l'événement"}
-      />
+      <header className="event-form-header">
+        <p className="eyebrow">Discord Community Events</p>
+        <h1>{isEditing ? "Modifier l'événement" : 'Créer un événement'}</h1>
+      </header>
+      <div className="card">
+        <EventForm
+          key={id ?? 'new'}
+          initialValues={initialValues}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          error={error}
+          submitLabel={isEditing ? 'Enregistrer' : "Créer l'événement"}
+        />
+      </div>
     </section>
   )
 }

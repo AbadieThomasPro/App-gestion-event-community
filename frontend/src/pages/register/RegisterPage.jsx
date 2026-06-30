@@ -31,49 +31,61 @@ function RegisterPage() {
   }
 
   return (
-    <section id="register">
-      <h1>Inscription</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="name">Nom</label>
-        <input
-          id="name"
-          type="text"
-          autoComplete="name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          required
-        />
+    <section id="register" className="auth-page">
+      <div className="auth-card">
+        <div className="auth-mark">EC</div>
+        <p className="eyebrow">Bienvenue</p>
+        <h1>Inscription</h1>
 
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="name">
+            Nom
+            <input
+              id="name"
+              type="text"
+              autoComplete="name"
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              required
+            />
+          </label>
 
-        <label htmlFor="password">Mot de passe</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          minLength={8}
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+          <label htmlFor="email">
+            Email
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+          </label>
 
-        {error && <p className="register-error">{error}</p>}
+          <label htmlFor="password">
+            Mot de passe
+            <input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              minLength={8}
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </label>
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Inscription...' : "S'inscrire"}
-        </button>
-      </form>
-      <p>
-        Déjà un compte ? <Link to="/login">Se connecter</Link>
-      </p>
+          {error && <p className="message error-message">{error}</p>}
+
+          <button type="submit" className="primary-button" disabled={isSubmitting}>
+            {isSubmitting ? 'Inscription...' : "S'inscrire"}
+          </button>
+        </form>
+
+        <p className="auth-card-footer">
+          Déjà un compte ? <Link to="/login">Se connecter</Link>
+        </p>
+      </div>
     </section>
   )
 }

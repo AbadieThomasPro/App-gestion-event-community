@@ -29,36 +29,40 @@ function MyRegistrationsPage() {
   }, [token])
 
   return (
-    <section id="list-event">
-      <header className="list-event-header">
-        <h1>Mes inscriptions</h1>
+    <section id="list-event" className="admin-page">
+      <header className="admin-header">
+        <div>
+          <p className="eyebrow">Discord Community Events</p>
+          <h1>Mes inscriptions</h1>
+          <p>Retrouvez tous les événements auxquels vous êtes inscrit·e.</p>
+        </div>
       </header>
 
-      {isLoading && <p className="list-event-status">Chargement de vos inscriptions...</p>}
-      {error && <p className="list-event-error">{error}</p>}
+      {isLoading && <p className="message">Chargement de vos inscriptions...</p>}
+      {error && <p className="message error-message">{error}</p>}
 
       {!isLoading && !error && registrations.length === 0 && (
-        <p className="list-event-status">
-          Vous n&apos;êtes inscrit·e à aucun événement pour le moment.
-        </p>
+        <p className="empty-state">Vous n&apos;êtes inscrit·e à aucun événement pour le moment.</p>
       )}
 
       <ul className="event-list">
         {registrations.map((registration) => (
           <li key={registration.id} className="event-card">
             <Link to={`/events/${registration.event.id}`}>
-              <span
-                className={`status-badge ${
-                  registration.status === 'WAITLISTED' ? 'status-draft' : 'status-published'
-                }`}
-              >
-                {REGISTRATION_STATUS_LABELS[registration.status] ?? registration.status}
-              </span>
-              <h2>{registration.event.title}</h2>
-              <p className="event-date">
-                📅 {dateFormatter.format(new Date(registration.event.date))}
-              </p>
-              <p className="event-location">📍 {registration.event.location}</p>
+              <div className="event-card-top">
+                <span
+                  className={`status-badge ${
+                    registration.status === 'WAITLISTED' ? 'status-draft' : 'status-published'
+                  }`}
+                >
+                  {REGISTRATION_STATUS_LABELS[registration.status] ?? registration.status}
+                </span>
+                <span className="event-date">
+                  📅 {dateFormatter.format(new Date(registration.event.date))}
+                </span>
+              </div>
+              <h3>{registration.event.title}</h3>
+              <p className="event-description">📍 {registration.event.location}</p>
             </Link>
           </li>
         ))}

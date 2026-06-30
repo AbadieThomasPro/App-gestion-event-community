@@ -1,58 +1,17 @@
 #event-form {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  flex-grow: 1;
-  padding: 32px 20px;
-}
-
-#event-form form {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto;
   width: 100%;
-  max-width: 480px;
-  text-align: left;
+  padding: 42px 20px 72px;
+  flex-grow: 1;
+  box-sizing: border-box;
 }
 
-#event-form label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 14px;
-  color: var(--text-h);
+#event-form .event-form-header {
+  margin-bottom: 24px;
 }
 
-#event-form .event-form-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 8px;
-}
-
-#event-form input,
-#event-form textarea,
-#event-form select {
-  font: inherit;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-h);
-}
-
-#event-form textarea {
-  resize: vertical;
-}
-
-#event-form input:focus-visible,
-#event-form textarea:focus-visible,
-#event-form select:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
-.event-form-error {
-  color: #e5484d;
-  font-size: 14px;
+#event-form .event-form {
+  grid-template-columns: 1fr;
+  padding-top: 0;
 }

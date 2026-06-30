@@ -29,38 +29,48 @@ function LoginPage() {
   }
 
   return (
-    <section id="login">
-      <h1>Connexion</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          autoComplete="email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-        />
+    <section id="login" className="auth-page">
+      <div className="auth-card">
+        <div className="auth-mark">EC</div>
+        <p className="eyebrow">Bon retour</p>
+        <h1>Connexion</h1>
 
-        <label htmlFor="password">Mot de passe</label>
-        <input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <label htmlFor="email">
+            Email
+            <input
+              id="email"
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+          </label>
 
-        {error && <p className="login-error">{error}</p>}
+          <label htmlFor="password">
+            Mot de passe
+            <input
+              id="password"
+              type="password"
+              autoComplete="current-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </label>
 
-        <button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? 'Connexion...' : 'Se connecter'}
-        </button>
-      </form>
-      <p>
-        Pas encore de compte ? <Link to="/register">S&apos;inscrire</Link>
-      </p>
+          {error && <p className="message error-message">{error}</p>}
+
+          <button type="submit" className="primary-button" disabled={isSubmitting}>
+            {isSubmitting ? 'Connexion...' : 'Se connecter'}
+          </button>
+        </form>
+
+        <p className="auth-card-footer">
+          Pas encore de compte ? <Link to="/register">S&apos;inscrire</Link>
+        </p>
+      </div>
     </section>
   )
 }

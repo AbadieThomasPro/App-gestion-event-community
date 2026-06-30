@@ -30,33 +30,39 @@ function ListEventPage() {
   }, [])
 
   return (
-    <section id="list-event">
-      <header className="list-event-header">
-        <h1>Événements</h1>
+    <section id="list-event" className="admin-page">
+      <header className="admin-header">
+        <div>
+          <p className="eyebrow">Discord Community Events</p>
+          <h1>Événements</h1>
+          <p>Découvrez et rejoignez les prochains rendez-vous de la communauté.</p>
+        </div>
         {canManageEvents && (
-          <Link to="/events/new" className="btn btn-primary">
+          <Link to="/events/new" className="primary-button">
             + Créer un événement
           </Link>
         )}
       </header>
 
-      {isLoading && <p className="list-event-status">Chargement des événements...</p>}
-      {error && <p className="list-event-error">{error}</p>}
+      {isLoading && <p className="message">Chargement des événements...</p>}
+      {error && <p className="message error-message">{error}</p>}
 
       {!isLoading && !error && events.length === 0 && (
-        <p className="list-event-status">Aucun événement pour le moment.</p>
+        <p className="empty-state">Aucun événement pour le moment.</p>
       )}
 
       <ul className="event-list">
         {events.map((event) => (
           <li key={event.id} className="event-card">
             <Link to={`/events/${event.id}`}>
-              <span className={`status-badge status-${event.status.toLowerCase()}`}>
-                {STATUS_LABELS[event.status] ?? event.status}
-              </span>
-              <h2>{event.title}</h2>
-              <p className="event-date">📅 {dateFormatter.format(new Date(event.date))}</p>
-              <p className="event-location">📍 {event.location}</p>
+              <div className="event-card-top">
+                <span className={`status-badge status-${event.status.toLowerCase()}`}>
+                  {STATUS_LABELS[event.status] ?? event.status}
+                </span>
+                <span className="event-date">📅 {dateFormatter.format(new Date(event.date))}</span>
+              </div>
+              <h3>{event.title}</h3>
+              <p className="event-description">📍 {event.location}</p>
             </Link>
           </li>
         ))}
