@@ -2,9 +2,12 @@ import express from 'express'
 import cors from 'cors'
 import authRoutes from './routes/auth.routes.js'
 import eventRoutes from './routes/event.routes.js'
+import adminRoutes from './routes/admin.routes.js'
 import registrationRoutes from './routes/registration.routes.js'
+import cronRoutes from './routes/cron.routes.js'
 import { openApiDocument } from './docs/openapi.js'
 import { HttpError } from './utils/http-error.js'
+import { sendErrorAlert } from './services/discord.service.js'
 
 const app = express()
 
@@ -46,19 +49,22 @@ app.get('/api-docs', (req, res) => {
 
 app.use('/auth', authRoutes)
 app.use('/events', eventRoutes)
+app.use('/admin', adminRoutes)
 app.use('/registrations', registrationRoutes)
+app.use('/cron', cronRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'route introuvable' })
 })
 
 // eslint-disable-next-line no-unused-vars
-app.use((err, req, res, next) => {
+app.use(async (err, req, res, next) => {
   if (err instanceof HttpError) {
     return res.status(err.status).json({ message: err.message })
   }
 
   console.error(err)
+  await sendErrorAlert(err, `${req.method} ${req.path}`)
   res.status(500).json({ message: 'une erreur interne est survenue' })
 })
 

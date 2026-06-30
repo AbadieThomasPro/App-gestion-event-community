@@ -3,15 +3,15 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import EventDetailPage from './EventDetailPage'
-import { AuthProvider } from '../../context/AuthContext'
-import { saveSession } from '../../api/authStorage'
-import * as eventsApi from '../../api/events'
-import * as registrationsApi from '../../api/registrations'
-import * as authApi from '../../api/auth'
+import { AuthProvider } from '../../../context/AuthContext'
+import { saveSession } from '../../../api/authStorage'
+import * as eventsApi from '../../../api/events'
+import * as registrationsApi from '../../../api/registrations'
+import * as authApi from '../../../api/auth'
 
-vi.mock('../../api/events')
-vi.mock('../../api/registrations')
-vi.mock('../../api/auth')
+vi.mock('../../../api/events')
+vi.mock('../../../api/registrations')
+vi.mock('../../../api/auth')
 
 const ADMIN = { id: 'user-1', name: 'Admin', email: 'admin@example.com', role: 'ADMIN' }
 const STANDARD_USER = { id: 'user-2', name: 'Bob', email: 'bob@example.com', role: 'USER' }

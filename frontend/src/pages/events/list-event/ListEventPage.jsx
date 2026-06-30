@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getEvents } from '../../api/events'
-import { useAuth } from '../../context/useAuth'
+import { getEvents } from '../../../api/events'
+import { useAuth } from '../../../context/useAuth'
 import './ListEventPage.css'
 
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', {

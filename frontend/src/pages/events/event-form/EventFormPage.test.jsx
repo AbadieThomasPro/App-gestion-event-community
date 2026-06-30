@@ -3,10 +3,10 @@ import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import EventFormPage from './EventFormPage'
-import { AuthProvider } from '../../context/AuthContext'
-import * as eventsApi from '../../api/events'
+import { AuthProvider } from '../../../context/AuthContext'
+import * as eventsApi from '../../../api/events'
 
-vi.mock('../../api/events')
+vi.mock('../../../api/events')
 
 const EVENT = {
   id: 'event-1',

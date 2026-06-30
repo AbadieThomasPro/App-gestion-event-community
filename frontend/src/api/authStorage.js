@@ -17,5 +17,16 @@ export function getStoredToken() {
 
 export function getStoredUser() {
   const raw = localStorage.getItem(USER_KEY)
-  return raw ? JSON.parse(raw) : null
+  if (!raw) return null
+
+  try {
+    return JSON.parse(raw)
+  } catch {
+    clearSession()
+    return null
+  }
+}
+
+export function getToken() {
+  return localStorage.getItem(TOKEN_KEY)
 }
