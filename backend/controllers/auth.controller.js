@@ -1,4 +1,4 @@
-import { registerUser, loginUser } from '../services/auth.service.js'
+import { registerUser, loginUser, loginAdmin } from '../services/auth.service.js'
 import { HttpError } from '../utils/http-error.js'
 
 export async function register(req, res) {
@@ -16,6 +16,18 @@ export async function register(req, res) {
 export async function login(req, res) {
   try {
     const result = await loginUser(req.body ?? {})
+    res.json(result)
+  } catch (err) {
+    if (err instanceof HttpError) {
+      return res.status(err.status).json({ message: err.message })
+    }
+    throw err
+  }
+}
+
+export async function adminLogin(req, res) {
+  try {
+    const result = await loginAdmin(req.body ?? {})
     res.json(result)
   } catch (err) {
     if (err instanceof HttpError) {

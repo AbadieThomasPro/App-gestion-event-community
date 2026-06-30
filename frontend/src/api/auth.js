@@ -11,14 +11,14 @@ export async function register({ email, password, name }) {
   return handleResponse(response, "l'inscription a échoué")
 }
 
-export async function login({ email, password }) {
-  const response = await apiFetch('/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
-  })
+async function readResponse(response) {
+  const data = await response.json()
 
-  return handleResponse(response, 'la connexion a échoué')
+  if (!response.ok) {
+    throw new Error(data.message ?? 'la connexion a échoué')
+  }
+
+  return data
 }
 
 export async function getCurrentUser(token) {
@@ -27,4 +27,23 @@ export async function getCurrentUser(token) {
   })
 
   return handleResponse(response, 'session invalide')
+}
+export async function login({ email, password }) {
+  const response = await fetch(`/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  })
+
+  return readResponse(response)
+}
+
+export async function loginAdmin({ username, password }) {
+  const response = await fetch(`/auth/admin-login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password }),
+  })
+
+  return readResponse(response)
 }

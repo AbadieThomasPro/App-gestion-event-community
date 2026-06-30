@@ -7,6 +7,8 @@ import EventFormPage from './pages/events/EventFormPage'
 import MyRegistrationsPage from './pages/events/MyRegistrationsPage'
 import LoginPage from './pages/login/LoginPage'
 import RegisterPage from './pages/register/RegisterPage'
+import AdminPage from './pages/admin/AdminPage'
+import AdminUsersPage from './pages/admin/AdminUsersPage'
 
 function App() {
   return (
@@ -14,6 +16,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route
             path="/"

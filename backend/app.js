@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import authRoutes from './routes/auth.routes.js'
 import eventRoutes from './routes/event.routes.js'
+import adminRoutes from './routes/admin.routes.js'
 import registrationRoutes from './routes/registration.routes.js'
 import cronRoutes from './routes/cron.routes.js'
 import { openApiDocument } from './docs/openapi.js'
@@ -48,6 +49,7 @@ app.get('/api-docs', (req, res) => {
 
 app.use('/auth', authRoutes)
 app.use('/events', eventRoutes)
+app.use('/admin', adminRoutes)
 app.use('/registrations', registrationRoutes)
 app.use('/cron', cronRoutes)
 
