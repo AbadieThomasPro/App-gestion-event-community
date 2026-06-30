@@ -1,22 +1,8 @@
-.admin-page,
-.admin-login {
-  --admin-bg: #f3f5f9;
-  --admin-card: #ffffff;
-  --admin-ink: #172033;
-  --admin-muted: #697386;
-  --admin-border: #dfe3ea;
-  --admin-primary: #5865f2;
-  --admin-primary-dark: #4752c4;
-  --admin-danger: #c43b4d;
+.admin-page {
   color: var(--admin-ink);
-  background:
-    radial-gradient(circle at 10% 0%, rgba(88, 101, 242, 0.12), transparent 30rem), var(--admin-bg);
   min-height: 100vh;
   box-sizing: border-box;
   text-align: left;
-}
-
-.admin-page {
   padding: 42px clamp(20px, 5vw, 72px) 72px;
   display: flex;
   flex-direction: column;
@@ -58,16 +44,6 @@
   box-shadow: 0 5px 15px rgba(88, 101, 242, 0.22);
 }
 
-.admin-page h1,
-.admin-login h1 {
-  color: var(--admin-ink);
-  font-size: clamp(32px, 4vw, 52px);
-  font-weight: 750;
-  line-height: 1.05;
-  letter-spacing: -0.04em;
-  margin: 5px 0 12px;
-}
-
 .admin-page h2 {
   color: var(--admin-ink);
   font-size: 24px;
@@ -84,14 +60,6 @@
 .admin-header p:last-child,
 .login-intro {
   color: var(--admin-muted);
-}
-
-.eyebrow {
-  color: var(--admin-primary);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
 }
 
 .stats-grid {
@@ -161,8 +129,7 @@
   padding-top: 20px;
 }
 
-.event-form label,
-.admin-login-card label {
+.event-form label {
   display: flex;
   flex-direction: column;
   gap: 7px;
@@ -175,10 +142,14 @@
   grid-column: 1 / -1;
 }
 
+.event-form-actions {
+  display: flex;
+  gap: 12px;
+}
+
 .event-form input,
 .event-form textarea,
-.event-form select,
-.admin-login-card input {
+.event-form select {
   width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--admin-border);
@@ -199,8 +170,7 @@
 
 .event-form input:focus,
 .event-form textarea:focus,
-.event-form select:focus,
-.admin-login-card input:focus {
+.event-form select:focus {
   outline: none;
   border-color: var(--admin-primary);
   box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.13);
@@ -210,11 +180,15 @@
 .ghost-button,
 .text-button,
 .event-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 0;
   border-radius: 10px;
   font: inherit;
   font-size: 14px;
   font-weight: 750;
+  text-decoration: none;
   cursor: pointer;
 }
 
@@ -266,31 +240,6 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-}
-
-.status-badge {
-  display: inline-flex;
-  padding: 4px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.status-published {
-  color: #19704a;
-  background: #def7ea;
-}
-
-.status-draft {
-  color: #745114;
-  background: #fff0c7;
-}
-
-.status-cancelled {
-  color: #9d2f40;
-  background: #ffe1e6;
 }
 
 .event-date {
@@ -349,72 +298,11 @@
 .message {
   max-width: 1400px;
   margin: 0 auto 18px;
-  padding: 11px 14px;
-  border-radius: 10px;
-  font-size: 14px;
-}
-
-.error-message {
-  color: #9d2f40;
-  background: #ffe1e6;
-  border: 1px solid #ffc4cd;
-}
-
-.success-message {
-  color: #17643f;
-  background: #def7ea;
-  border: 1px solid #b9ebd2;
 }
 
 .empty-state {
   padding: 52px 20px 36px;
   color: var(--admin-muted);
-  text-align: center;
-}
-
-.admin-login {
-  display: grid;
-  place-items: center;
-  padding: 24px;
-}
-
-.admin-login-card {
-  width: min(410px, 100%);
-  box-sizing: border-box;
-  padding: 38px;
-  border: 1px solid var(--admin-border);
-  border-radius: 22px;
-  background: var(--admin-card);
-  box-shadow: 0 25px 70px rgba(35, 42, 66, 0.13);
-}
-
-.admin-mark {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 25px;
-  display: grid;
-  place-items: center;
-  border-radius: 14px;
-  color: white;
-  background: var(--admin-primary);
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.admin-login-card form {
-  display: grid;
-  gap: 14px;
-  margin-top: 27px;
-}
-
-.admin-login-card .message {
-  margin: 0;
-}
-
-.temporary-access {
-  margin-top: 18px;
-  color: var(--admin-muted);
-  font-size: 12px;
   text-align: center;
 }
 
@@ -461,8 +349,7 @@
   }
 
   .event-form-panel,
-  .event-list-panel,
-  .admin-login-card {
+  .event-list-panel {
     padding: 19px;
     border-radius: 16px;
   }

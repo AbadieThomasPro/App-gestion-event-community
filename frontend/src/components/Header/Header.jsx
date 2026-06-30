@@ -41,7 +41,7 @@ function Header() {
           <span className={`role-badge role-${user.role.toLowerCase()}`}>
             {ROLE_LABELS[user.role] ?? user.role}
           </span>
-          <button type="button" className="btn btn-ghost" onClick={signOut}>
+          <button type="button" className="ghost-button" onClick={signOut}>
             Se déconnecter
           </button>
         </div>

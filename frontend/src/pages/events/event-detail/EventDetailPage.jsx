@@ -110,7 +110,7 @@ function EventDetailPage() {
   }
 
   if (isLoading) return <p>Chargement de l&apos;événement...</p>
-  if (error) return <p className="event-detail-error">{error}</p>
+  if (error) return <p className="message error-message">{error}</p>
   if (!event) return null
 
   return (
@@ -119,81 +119,86 @@ function EventDetailPage() {
         ← Retour aux événements
       </Link>
 
-      <header className="event-detail-header">
-        <h1>{event.title}</h1>
-        <span className={`status-badge status-${event.status.toLowerCase()}`}>
-          {STATUS_LABELS[event.status] ?? event.status}
-        </span>
-      </header>
-
-      <dl className="event-detail-info">
-        <div>
-          <dt>Date</dt>
-          <dd>{dateFormatter.format(new Date(event.date))}</dd>
-        </div>
-        {event.endDate && (
+      <div className="card">
+        <header className="event-detail-header">
           <div>
-            <dt>Date de fin</dt>
-            <dd>{dateFormatter.format(new Date(event.endDate))}</dd>
+            <p className="eyebrow">Discord Community Events</p>
+            <h1>{event.title}</h1>
           </div>
-        )}
-        <div>
-          <dt>Lieu</dt>
-          <dd>{event.location}</dd>
-        </div>
-        {event.capacity && (
+          <span className={`status-badge status-${event.status.toLowerCase()}`}>
+            {STATUS_LABELS[event.status] ?? event.status}
+          </span>
+        </header>
+
+        <dl className="event-detail-info">
           <div>
-            <dt>Capacité</dt>
-            <dd>{event.capacity} places</dd>
+            <dt>Date</dt>
+            <dd>{dateFormatter.format(new Date(event.date))}</dd>
           </div>
-        )}
-      </dl>
+          {event.endDate && (
+            <div>
+              <dt>Date de fin</dt>
+              <dd>{dateFormatter.format(new Date(event.endDate))}</dd>
+            </div>
+          )}
+          <div>
+            <dt>Lieu</dt>
+            <dd>{event.location}</dd>
+          </div>
+          {event.capacity && (
+            <div>
+              <dt>Capacité</dt>
+              <dd>{event.capacity} places</dd>
+            </div>
+          )}
+        </dl>
 
-      <p className="event-detail-description">{event.description}</p>
+        <p className="event-detail-description">{event.description}</p>
 
-      <div className="event-detail-registration">
-        {myRegistration ? (
-          <>
-            <span className="status-badge status-published">
-              {REGISTRATION_STATUS_LABELS[myRegistration.status] ?? myRegistration.status}
-            </span>
+        <div className="event-detail-registration">
+          {myRegistration ? (
+            <>
+              <span className="status-badge status-published">
+                {REGISTRATION_STATUS_LABELS[myRegistration.status] ?? myRegistration.status}
+              </span>
+              <button
+                type="button"
+                className="danger-button"
+                onClick={handleUnregister}
+                disabled={isRegistering}
+              >
+                {isRegistering ? 'Désinscription...' : 'Se désinscrire'}
+              </button>
+            </>
+          ) : (
             <button
               type="button"
-              className="btn btn-danger"
-              onClick={handleUnregister}
+              className="primary-button"
+              onClick={handleRegister}
               disabled={isRegistering}
             >
-              {isRegistering ? 'Désinscription...' : 'Se désinscrire'}
+              {isRegistering ? 'Inscription...' : "S'inscrire"}
             </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleRegister}
-            disabled={isRegistering}
-          >
-            {isRegistering ? 'Inscription...' : "S'inscrire"}
-          </button>
-        )}
-        {registrationError && <p className="event-detail-error">{registrationError}</p>}
-      </div>
-
-      {canManageEvents && (
-        <div className="event-detail-actions">
-          <Link to={`/events/${event.id}/edit`} className="btn btn-secondary">
-            Modifier
-          </Link>
-          <button
-            type="button"
-            className="btn btn-danger"
-            onClick={handleDelete}
-            disabled={isDeleting}
-          >
-            {isDeleting ? 'Suppression...' : 'Supprimer'}
-          </button>
+          )}
+          {registrationError && <p className="message error-message">{registrationError}</p>}
         </div>
-      )}
+
+        {canManageEvents && (
+          <div className="event-detail-actions">
+            <Link to={`/events/${event.id}/edit`} className="ghost-button">
+              Modifier
+            </Link>
+            <button
+              type="button"
+              className="danger-button"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? 'Suppression...' : 'Supprimer'}
+            </button>
+          </div>
+        )}
+      </div>
     </section>
   )
 }
