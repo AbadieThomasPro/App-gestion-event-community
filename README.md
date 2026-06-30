@@ -348,6 +348,9 @@ docker compose up
 ```
 
 - Frontend : http://localhost:4200
+- Administration des événements : http://localhost:4200/admin  
+  Identifiants temporaires en développement : `admin` / `admin`
+- Utilisateurs et inscriptions : http://localhost:4200/admin/users
 - Backend : http://localhost:3000
 - Adminer (gestion base de données) : http://localhost:8080  
 	(serveur : `db`, utilisateur : `dev`, mot de passe : `dev`)

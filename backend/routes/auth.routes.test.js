@@ -9,6 +9,7 @@ jest.mock('../lib/prisma.js', () => ({
     user: {
       findUnique: jest.fn(),
       create: jest.fn(),
+      upsert: jest.fn(),
     },
   },
 }))
@@ -126,6 +127,29 @@ describe('POST /auth/login', () => {
 
     expect(res.status).toBe(400)
     expect(prisma.user.findUnique).not.toHaveBeenCalled()
+  })
+})
+
+describe('POST /auth/admin-login', () => {
+  it('crée la session administrateur temporaire', async () => {
+    prisma.user.upsert.mockResolvedValue({ ...FAKE_USER, role: 'ADMIN', name: 'Administrateur' })
+
+    const res = await request(app)
+      .post('/auth/admin-login')
+      .send({ username: 'admin', password: 'admin' })
+
+    expect(res.status).toBe(200)
+    expect(res.body.user.role).toBe('ADMIN')
+    expect(typeof res.body.token).toBe('string')
+  })
+
+  it('refuse des identifiants admin incorrects', async () => {
+    const res = await request(app)
+      .post('/auth/admin-login')
+      .send({ username: 'admin', password: 'incorrect' })
+
+    expect(res.status).toBe(401)
+    expect(prisma.user.upsert).not.toHaveBeenCalled()
   })
 })
 

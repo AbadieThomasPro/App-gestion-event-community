@@ -78,3 +78,40 @@ export async function loginUser({ email, password }) {
 
   return { token, user: toPublicUser(user) }
 }
+
+export async function loginAdmin({ username, password }) {
+  const defaultUsername = process.env.NODE_ENV === 'production' ? null : 'admin'
+  const defaultPassword = process.env.NODE_ENV === 'production' ? null : 'admin'
+  const expectedUsername = process.env.ADMIN_USERNAME ?? defaultUsername
+  const expectedPassword = process.env.ADMIN_PASSWORD ?? defaultPassword
+
+  if (!expectedUsername || !expectedPassword) {
+    throw new HttpError(503, 'la connexion admin temporaire n’est pas configurée')
+  }
+
+  if (username !== expectedUsername || password !== expectedPassword) {
+    throw new HttpError(401, 'identifiant ou mot de passe incorrect')
+  }
+
+  const hashedPassword = await bcrypt.hash(expectedPassword, 10)
+  const user = await prisma.user.upsert({
+    where: { email: process.env.ADMIN_EMAIL ?? 'admin@local.dev' },
+    update: {
+      name: 'Administrateur',
+      password: hashedPassword,
+      role: 'ADMIN',
+      isActive: true,
+    },
+    create: {
+      email: process.env.ADMIN_EMAIL ?? 'admin@local.dev',
+      name: 'Administrateur',
+      password: hashedPassword,
+      role: 'ADMIN',
+      emailVerified: true,
+    },
+  })
+
+  const token = jwt.sign({ sub: user.id }, process.env.JWT_SECRET, { expiresIn: '7d' })
+
+  return { token, user: toPublicUser(user) }
+}

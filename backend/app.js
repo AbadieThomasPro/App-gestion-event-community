@@ -3,6 +3,7 @@ import cors from 'cors'
 import swaggerUi from 'swagger-ui-express'
 import authRoutes from './routes/auth.routes.js'
 import eventRoutes from './routes/event.routes.js'
+import adminRoutes from './routes/admin.routes.js'
 import { openApiDocument } from './docs/openapi.js'
 
 const app = express()
@@ -21,5 +22,6 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiDocument))
 
 app.use('/auth', authRoutes)
 app.use('/events', eventRoutes)
+app.use('/admin', adminRoutes)
 
 export default app
