@@ -72,9 +72,56 @@ describe('Swagger', () => {
     const res = await request(app).get('/api-docs.json')
 
     expect(res.status).toBe(200)
+    expect(res.body.paths['/events/{id}/register'].get).toBeDefined()
     expect(res.body.paths['/events/{id}/register'].post).toBeDefined()
     expect(res.body.paths['/events/{id}/register'].delete).toBeDefined()
     expect(res.body.paths['/events/{id}/registrations'].get).toBeDefined()
+    expect(res.body.paths['/registrations/me'].get).toBeDefined()
+  })
+})
+
+describe('GET /events/:id/register', () => {
+  it("renvoie l'inscription de l'utilisateur connecté", async () => {
+    prisma.user.findUnique.mockResolvedValue(USER)
+    prisma.event.findUnique.mockResolvedValue(EVENT)
+    prisma.registration.findUnique.mockResolvedValue(REGISTRATION)
+
+    const res = await request(app)
+      .get('/events/event-1/register')
+      .set('Authorization', `Bearer ${tokenFor(USER)}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body).toEqual(REGISTRATION)
+  })
+
+  it('renvoie null si non inscrit', async () => {
+    prisma.user.findUnique.mockResolvedValue(USER)
+    prisma.event.findUnique.mockResolvedValue(EVENT)
+    prisma.registration.findUnique.mockResolvedValue(null)
+
+    const res = await request(app)
+      .get('/events/event-1/register')
+      .set('Authorization', `Bearer ${tokenFor(USER)}`)
+
+    expect(res.status).toBe(200)
+    expect(res.body).toBeNull()
+  })
+
+  it('refuse une requête sans token', async () => {
+    const res = await request(app).get('/events/event-1/register')
+
+    expect(res.status).toBe(401)
+  })
+
+  it("renvoie 404 si l'événement est absent", async () => {
+    prisma.user.findUnique.mockResolvedValue(USER)
+    prisma.event.findUnique.mockResolvedValue(null)
+
+    const res = await request(app)
+      .get('/events/missing/register')
+      .set('Authorization', `Bearer ${tokenFor(USER)}`)
+
+    expect(res.status).toBe(404)
   })
 })
 

@@ -4,6 +4,7 @@ import RequireAuth from './components/RequireAuth'
 import ListEventPage from './pages/events/ListEventPage'
 import EventDetailPage from './pages/events/EventDetailPage'
 import EventFormPage from './pages/events/EventFormPage'
+import MyRegistrationsPage from './pages/events/MyRegistrationsPage'
 import LoginPage from './pages/login/LoginPage'
 import RegisterPage from './pages/register/RegisterPage'
 
@@ -19,6 +20,14 @@ function App() {
             element={
               <RequireAuth>
                 <ListEventPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/my-events"
+            element={
+              <RequireAuth>
+                <MyRegistrationsPage />
               </RequireAuth>
             }
           />

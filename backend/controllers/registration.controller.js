@@ -1,4 +1,6 @@
 import {
+  findMyRegistration,
+  listMyRegistrations,
   listRegistrations,
   registerForEvent,
   unregisterFromEvent,
@@ -34,6 +36,24 @@ export async function removeRegistration(req, res) {
 export async function getRegistrations(req, res) {
   try {
     const registrations = await listRegistrations(req.params.id)
+    res.json(registrations)
+  } catch (error) {
+    handleError(error, res)
+  }
+}
+
+export async function getMyRegistration(req, res) {
+  try {
+    const registration = await findMyRegistration(req.params.id, req.user.id)
+    res.json(registration)
+  } catch (error) {
+    handleError(error, res)
+  }
+}
+
+export async function getMyRegistrations(req, res) {
+  try {
+    const registrations = await listMyRegistrations(req.user.id)
     res.json(registrations)
   } catch (error) {
     handleError(error, res)

@@ -2,6 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import authRoutes from './routes/auth.routes.js'
 import eventRoutes from './routes/event.routes.js'
+import registrationRoutes from './routes/registration.routes.js'
 import { openApiDocument } from './docs/openapi.js'
 import { HttpError } from './utils/http-error.js'
 
@@ -45,6 +46,7 @@ app.get('/api-docs', (req, res) => {
 
 app.use('/auth', authRoutes)
 app.use('/events', eventRoutes)
+app.use('/registrations', registrationRoutes)
 
 app.use((req, res) => {
   res.status(404).json({ message: 'route introuvable' })

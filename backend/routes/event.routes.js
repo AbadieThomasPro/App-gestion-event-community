@@ -7,6 +7,7 @@ import {
   removeEvent,
 } from '../controllers/event.controller.js'
 import {
+  getMyRegistration,
   getRegistrations,
   postRegistration,
   removeRegistration,
@@ -23,6 +24,7 @@ router.post('/', ...canManageEvents, postEvent)
 router.put('/:id', ...canManageEvents, putEvent)
 router.delete('/:id', ...canManageEvents, removeEvent)
 
+router.get('/:id/register', authenticate, getMyRegistration)
 router.post('/:id/register', authenticate, postRegistration)
 router.delete('/:id/register', authenticate, removeRegistration)
 router.get('/:id/registrations', authenticate, requireRole('ADMIN'), getRegistrations)

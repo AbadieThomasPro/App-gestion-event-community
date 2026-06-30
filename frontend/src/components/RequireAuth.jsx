@@ -1,5 +1,6 @@
 import { Navigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import Header from './Header'
 
 function RequireAuth({ children }) {
   const { token, isReady } = useAuth()
@@ -11,7 +12,12 @@ function RequireAuth({ children }) {
     return <Navigate to="/login" replace state={{ from: location }} />
   }
 
-  return children
+  return (
+    <>
+      <Header />
+      {children}
+    </>
+  )
 }
 
 export default RequireAuth

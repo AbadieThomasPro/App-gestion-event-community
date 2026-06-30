@@ -86,7 +86,7 @@ describe('ListEventPage', () => {
     renderListEventPage(ORGANIZER)
 
     await waitFor(() => expect(screen.getByText('Tournoi communautaire')).toBeInTheDocument())
-    expect(screen.getByRole('link', { name: 'Créer un événement' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Créer un événement/ })).toBeInTheDocument()
   })
 
   it('ne montre pas le bouton de création pour un utilisateur standard', async () => {
@@ -95,6 +95,6 @@ describe('ListEventPage', () => {
     renderListEventPage(STANDARD_USER)
 
     await waitFor(() => expect(screen.getByText('Tournoi communautaire')).toBeInTheDocument())
-    expect(screen.queryByRole('link', { name: 'Créer un événement' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('link', { name: /Créer un événement/ })).not.toBeInTheDocument()
   })
 })

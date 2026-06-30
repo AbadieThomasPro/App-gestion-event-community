@@ -6,9 +6,11 @@ import EventDetailPage from './EventDetailPage'
 import { AuthProvider } from '../../context/AuthContext'
 import { saveSession } from '../../api/authStorage'
 import * as eventsApi from '../../api/events'
+import * as registrationsApi from '../../api/registrations'
 import * as authApi from '../../api/auth'
 
 vi.mock('../../api/events')
+vi.mock('../../api/registrations')
 vi.mock('../../api/auth')
 
 const ADMIN = { id: 'user-1', name: 'Admin', email: 'admin@example.com', role: 'ADMIN' }
@@ -46,6 +48,7 @@ function renderEventDetailPage(user, { route = '/events/event-1' } = {}) {
 beforeEach(() => {
   vi.clearAllMocks()
   localStorage.clear()
+  registrationsApi.getMyRegistrationForEvent.mockResolvedValue(null)
 })
 
 describe('EventDetailPage', () => {
@@ -77,7 +80,7 @@ describe('EventDetailPage', () => {
     expect(screen.getByRole('button', { name: 'Supprimer' })).toBeInTheDocument()
   })
 
-  it('ne montre pas les actions pour un utilisateur standard', async () => {
+  it('ne montre pas les actions modifier/supprimer pour un utilisateur standard', async () => {
     eventsApi.getEvent.mockResolvedValue(EVENT)
 
     renderEventDetailPage(STANDARD_USER)
@@ -108,6 +111,60 @@ describe('EventDetailPage', () => {
         expect(eventsApi.deleteEvent).toHaveBeenCalledWith('event-1', 'fake-token')
       )
       expect(await screen.findByText('Page liste des événements')).toBeInTheDocument()
+    })
+  })
+
+  describe('inscription', () => {
+    it("propose de s'inscrire quand l'utilisateur n'est pas inscrit", async () => {
+      eventsApi.getEvent.mockResolvedValue(EVENT)
+      registrationsApi.getMyRegistrationForEvent.mockResolvedValue(null)
+      registrationsApi.registerForEvent.mockResolvedValue({
+        id: 'registration-1',
+        status: 'CONFIRMED',
+      })
+
+      renderEventDetailPage(STANDARD_USER)
+
+      const registerButton = await screen.findByRole('button', { name: "S'inscrire" })
+      await userEvent.click(registerButton)
+
+      await waitFor(() =>
+        expect(registrationsApi.registerForEvent).toHaveBeenCalledWith('event-1', 'fake-token')
+      )
+      expect(await screen.findByRole('button', { name: 'Se désinscrire' })).toBeInTheDocument()
+      expect(screen.getByText('Inscrit·e')).toBeInTheDocument()
+    })
+
+    it('propose de se désinscrire quand l’utilisateur est déjà inscrit', async () => {
+      eventsApi.getEvent.mockResolvedValue(EVENT)
+      registrationsApi.getMyRegistrationForEvent.mockResolvedValue({
+        id: 'registration-1',
+        status: 'CONFIRMED',
+      })
+      registrationsApi.unregisterFromEvent.mockResolvedValue(null)
+
+      renderEventDetailPage(STANDARD_USER)
+
+      const unregisterButton = await screen.findByRole('button', { name: 'Se désinscrire' })
+      await userEvent.click(unregisterButton)
+
+      await waitFor(() =>
+        expect(registrationsApi.unregisterFromEvent).toHaveBeenCalledWith('event-1', 'fake-token')
+      )
+      expect(await screen.findByRole('button', { name: "S'inscrire" })).toBeInTheDocument()
+    })
+
+    it("affiche le statut liste d'attente", async () => {
+      eventsApi.getEvent.mockResolvedValue(EVENT)
+      registrationsApi.getMyRegistrationForEvent.mockResolvedValue({
+        id: 'registration-1',
+        status: 'WAITLISTED',
+      })
+
+      renderEventDetailPage(STANDARD_USER)
+
+      expect(await screen.findByText("Sur liste d'attente")).toBeInTheDocument()
+      expect(screen.getByRole('button', { name: 'Se désinscrire' })).toBeInTheDocument()
     })
   })
 })
