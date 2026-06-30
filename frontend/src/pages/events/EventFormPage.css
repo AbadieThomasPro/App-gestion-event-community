@@ -43,25 +43,9 @@
   outline-offset: 2px;
 }
 
-#event-form button {
-  font: inherit;
+#event-form button[type='submit'] {
   margin-top: 8px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  border: 2px solid transparent;
-  color: var(--accent);
-  background: var(--accent-bg);
-  cursor: pointer;
-  transition: border-color 0.3s;
-}
-
-#event-form button:hover {
-  border-color: var(--accent-border);
-}
-
-#event-form button:disabled {
-  cursor: not-allowed;
-  opacity: 0.6;
+  align-self: flex-start;
 }
 
 .event-form-error {

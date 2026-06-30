@@ -55,3 +55,19 @@ export async function listRegistrations(eventId) {
     include: { user: { select: REGISTRANT_FIELDS } },
   })
 }
+
+export async function findMyRegistration(eventId, userId) {
+  await findEvent(eventId)
+
+  return prisma.registration.findUnique({
+    where: { userId_eventId: { userId, eventId } },
+  })
+}
+
+export function listMyRegistrations(userId) {
+  return prisma.registration.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'asc' },
+    include: { event: true },
+  })
+}

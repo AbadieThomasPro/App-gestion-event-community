@@ -158,7 +158,7 @@ function EventFormPage() {
 
         {error && <p className="event-form-error">{error}</p>}
 
-        <button type="submit" disabled={isSubmitting}>
+        <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
           {isSubmitting ? 'Enregistrement...' : isEditing ? 'Enregistrer' : "Créer l'événement"}
         </button>
       </form>

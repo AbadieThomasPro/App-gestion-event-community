@@ -16,7 +16,7 @@ const STATUS_LABELS = {
 }
 
 function ListEventPage() {
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
   const [events, setEvents] = useState([])
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(true)
@@ -32,37 +32,31 @@ function ListEventPage() {
   return (
     <section id="list-event">
       <header className="list-event-header">
-        <div>
-          <h1>Événements</h1>
-          {user && <p className="welcome">Connecté en tant que {user.name}</p>}
-        </div>
-        <div className="list-event-actions">
-          {canManageEvents && (
-            <Link to="/events/new" className="button">
-              Créer un événement
-            </Link>
-          )}
-          <button type="button" className="logout" onClick={signOut}>
-            Se déconnecter
-          </button>
-        </div>
+        <h1>Événements</h1>
+        {canManageEvents && (
+          <Link to="/events/new" className="btn btn-primary">
+            + Créer un événement
+          </Link>
+        )}
       </header>
 
-      {isLoading && <p>Chargement des événements...</p>}
+      {isLoading && <p className="list-event-status">Chargement des événements...</p>}
       {error && <p className="list-event-error">{error}</p>}
 
-      {!isLoading && !error && events.length === 0 && <p>Aucun événement pour le moment.</p>}
+      {!isLoading && !error && events.length === 0 && (
+        <p className="list-event-status">Aucun événement pour le moment.</p>
+      )}
 
       <ul className="event-list">
         {events.map((event) => (
           <li key={event.id} className="event-card">
             <Link to={`/events/${event.id}`}>
-              <h2>{event.title}</h2>
-              <p className="event-date">{dateFormatter.format(new Date(event.date))}</p>
-              <p className="event-location">{event.location}</p>
-              <span className={`event-status status-${event.status.toLowerCase()}`}>
+              <span className={`status-badge status-${event.status.toLowerCase()}`}>
                 {STATUS_LABELS[event.status] ?? event.status}
               </span>
+              <h2>{event.title}</h2>
+              <p className="event-date">📅 {dateFormatter.format(new Date(event.date))}</p>
+              <p className="event-location">📍 {event.location}</p>
             </Link>
           </li>
         ))}

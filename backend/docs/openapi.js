@@ -328,6 +328,34 @@ export const openApiDocument = {
           schema: { type: 'string', format: 'uuid' },
         },
       ],
+      get: {
+        tags: ['Registrations'],
+        summary: 'Consulter sa propre inscription à un événement',
+        operationId: 'getMyRegistration',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Inscription (ou null si non inscrit)',
+            content: {
+              'application/json': {
+                schema: {
+                  nullable: true,
+                  allOf: [{ $ref: '#/components/schemas/Registration' }],
+                },
+              },
+            },
+          },
+          401: errorResponses[401],
+          404: {
+            description: 'Événement introuvable',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
       post: {
         tags: ['Registrations'],
         summary: "S'inscrire à un événement",
@@ -377,6 +405,36 @@ export const openApiDocument = {
               },
             },
           },
+        },
+      },
+    },
+    '/registrations/me': {
+      get: {
+        tags: ['Registrations'],
+        summary: 'Lister mes inscriptions',
+        operationId: 'getMyRegistrations',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Liste de mes inscriptions, événement inclus',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    allOf: [
+                      { $ref: '#/components/schemas/Registration' },
+                      {
+                        type: 'object',
+                        properties: { event: { $ref: '#/components/schemas/Event' } },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          401: errorResponses[401],
         },
       },
     },
