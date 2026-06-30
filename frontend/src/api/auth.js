@@ -1,3 +1,5 @@
+import { handleResponse } from './handleResponse'
+
 const API_URL = import.meta.env.VITE_API_URL
 
 export async function register({ email, password, name }) {
@@ -7,13 +9,7 @@ export async function register({ email, password, name }) {
     body: JSON.stringify({ email, password, name }),
   })
 
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message ?? "l'inscription a échoué")
-  }
-
-  return data
+  return handleResponse(response, "l'inscription a échoué")
 }
 
 export async function login({ email, password }) {
@@ -23,13 +19,7 @@ export async function login({ email, password }) {
     body: JSON.stringify({ email, password }),
   })
 
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message ?? 'la connexion a échoué')
-  }
-
-  return data
+  return handleResponse(response, 'la connexion a échoué')
 }
 
 export async function getCurrentUser(token) {
@@ -37,9 +27,5 @@ export async function getCurrentUser(token) {
     headers: { Authorization: `Bearer ${token}` },
   })
 
-  if (!response.ok) {
-    throw new Error('session invalide')
-  }
-
-  return response.json()
+  return handleResponse(response, 'session invalide')
 }
