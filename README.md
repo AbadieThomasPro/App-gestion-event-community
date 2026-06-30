@@ -90,7 +90,7 @@ npm run lint      # vérifie ESLint + Prettier
 npm run format    # formate tous les fichiers
 ```
 
-Une fois le backend lancé, la documentation Swagger des routes `events` est disponible sur
+Une fois le backend lancé, la documentation Swagger des routes `auth`, `events` et `registrations` est disponible sur
 [`http://localhost:3000/api-docs`](http://localhost:3000/api-docs). Le document OpenAPI brut
 est également exposé sur [`http://localhost:3000/api-docs.json`](http://localhost:3000/api-docs.json).
 
@@ -195,7 +195,7 @@ La pipeline contiendra plusieurs étapes :
 - test : exécution des tests automatisés
 - build : construction de l’application
 - build Docker : création des images Docker (environnement de développement uniquement)
-- deploy : déploiement automatique sur **Vercel** via son intégration Git native (production sur `main`, preview sur les autres branches/PR)
+- deploy : déploiement sur **Vercel** piloté par la pipeline elle-même via la CLI `vercel` (`vercel build` + `vercel deploy`), et non par l'intégration Git native de Vercel — production sur push `main`, preview sur push `develop`
 
 L’utilisation de GitHub Actions permettra d’automatiser les vérifications du projet à chaque push ou pull request afin de limiter les erreurs et améliorer la qualité du code. Le détail de la mise en place du déploiement Vercel est documenté dans [`project.md`](./project.md).
 
@@ -246,16 +246,13 @@ Sur Vercel, ces outils ne s’appliquent plus tels quels (pas de conteneurs ni d
 
 ## Alertes Discord
 
-Discord sera utilisé pour recevoir certaines alertes automatiquement.
+Le back-end poste automatiquement des messages sur un webhook Discord (`backend/services/discord.service.js`), sans jamais faire échouer une requête si Discord est indisponible ou mal configuré :
 
-Exemples d’alertes :
+- **Annonce de création** : un message est envoyé à chaque création d’événement (`POST /events`)
+- **Rappel 24h avant l’événement** : route `GET /cron/reminder`, protégée par un secret (`CRON_SECRET`), déclenchée par un **Vercel Cron Job** (`backend/vercel.json`, champ `crons`) une fois par jour. Comme le plan Hobby de Vercel limite les cron jobs à une exécution quotidienne, la route cible une fenêtre de 24h à 48h avant le début de l’événement plutôt qu’un rappel calé à la minute près. ⚠️ Les Cron Jobs Vercel ne se déclenchent qu’en environnement **Production**.
+- **Erreur critique** : le middleware d’erreur global d’Express (`backend/app.js`) envoie une alerte pour toute erreur 500 non prévue, avec la route concernée
 
-- un conteneur est arrêté
-- l’API ne répond plus
-- l’utilisation CPU est trop élevée
-- une erreur critique apparaît dans les logs
-
-Cela permet d’être rapidement informé en cas de problème.
+Cela permet d’être rapidement informé en cas de problème, sans dépendre d’un outil de monitoring externe.
 
 ## Convention de commits
 
@@ -330,6 +327,8 @@ cp backend/.env.example backend/.env
 | `DATABASE_URL_UNPOOLED` | Connexion directe, utilisée par les migrations Prisma (identique à `DATABASE_URL` en local) |
 | `JWT_SECRET` | Secret de signature/vérification des JWT |
 | `FRONTEND_URL` | Origine autorisée par CORS pour les requêtes du frontend (`http://localhost:4200` en local) |
+| `DISCORD_WEBHOOK_URL` | URL du webhook Discord utilisé pour les annonces, rappels et alertes (optionnel en local : si absent, les envois sont simplement ignorés) |
+| `CRON_SECRET` | Secret partagé avec Vercel Cron Jobs, vérifié sur `GET /cron/reminder` |
 
 #### `frontend/.env` (optionnel en local, requis en déploiement)
 
