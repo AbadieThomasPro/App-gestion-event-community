@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { useAuth } from '../context/useAuth'
+import { useAuth } from '../../context/useAuth'
 import './Header.css'
 
 const ROLE_LABELS = {
@@ -28,6 +28,11 @@ function Header() {
         <NavLink to="/my-events" className={navLinkClassName}>
           Mes inscriptions
         </NavLink>
+        {user?.role === 'ADMIN' && (
+          <NavLink to="/admin" className={navLinkClassName}>
+            Admin
+          </NavLink>
+        )}
       </nav>
 
       {user && (

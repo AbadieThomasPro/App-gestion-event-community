@@ -3,6 +3,7 @@ import {
   sendEventAnnouncement,
   sendEventReminder,
   sendErrorAlert,
+  _resetErrorAlertThrottle,
 } from './discord.service.js'
 
 const ORIGINAL_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL
@@ -18,6 +19,7 @@ beforeEach(() => {
   jest.restoreAllMocks()
   jest.spyOn(console, 'warn').mockImplementation(() => {})
   jest.spyOn(console, 'error').mockImplementation(() => {})
+  _resetErrorAlertThrottle()
 })
 
 afterEach(() => {
@@ -97,5 +99,38 @@ describe('helpers de formatage', () => {
     const body = JSON.parse(global.fetch.mock.calls[0][1].body)
     expect(body.content).toContain('boom')
     expect(body.content).toContain('POST /events')
+  })
+})
+
+describe('sendErrorAlert - throttling', () => {
+  beforeEach(() => {
+    process.env.DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/test'
+    global.fetch = jest.fn().mockResolvedValue({ ok: true, status: 204 })
+  })
+
+  it('n’envoie qu’une seule alerte si plusieurs erreurs surviennent rapidement', async () => {
+    await sendErrorAlert(new Error('panne 1'), 'GET /events')
+    await sendErrorAlert(new Error('panne 2'), 'GET /events')
+    await sendErrorAlert(new Error('panne 3'), 'GET /events')
+
+    expect(global.fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('renvoie sans appeler fetch pendant la fenêtre de cooldown', async () => {
+    await sendErrorAlert(new Error('panne 1'), 'GET /events')
+    global.fetch.mockClear()
+
+    await expect(sendErrorAlert(new Error('panne 2'), 'GET /events')).resolves.toBeUndefined()
+    expect(global.fetch).not.toHaveBeenCalled()
+  })
+
+  it('renvoie une nouvelle alerte une fois le throttle réinitialisé', async () => {
+    await sendErrorAlert(new Error('panne 1'), 'GET /events')
+    _resetErrorAlertThrottle()
+    global.fetch.mockClear()
+
+    await sendErrorAlert(new Error('panne 2'), 'GET /events')
+
+    expect(global.fetch).toHaveBeenCalledTimes(1)
   })
 })

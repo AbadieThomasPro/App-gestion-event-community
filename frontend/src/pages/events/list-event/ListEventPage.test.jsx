@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import ListEventPage from './ListEventPage'
-import { AuthProvider } from '../../context/AuthContext'
-import { saveSession } from '../../api/authStorage'
-import * as eventsApi from '../../api/events'
-import * as authApi from '../../api/auth'
+import { AuthProvider } from '../../../context/AuthContext'
+import { saveSession } from '../../../api/authStorage'
+import * as eventsApi from '../../../api/events'
+import * as authApi from '../../../api/auth'
 
-vi.mock('../../api/events')
-vi.mock('../../api/auth')
+vi.mock('../../../api/events')
+vi.mock('../../../api/auth')
 
 const ORGANIZER = { id: 'user-1', name: 'Jane', email: 'jane@example.com', role: 'ORGANIZER' }
 const STANDARD_USER = { id: 'user-2', name: 'Bob', email: 'bob@example.com', role: 'USER' }

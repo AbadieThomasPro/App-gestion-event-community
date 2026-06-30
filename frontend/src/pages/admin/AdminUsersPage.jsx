@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Navigate, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   createRegistration,
   createUser,
@@ -10,8 +10,8 @@ import {
   updateRegistration,
   updateUser,
 } from '../../api/admin'
-import { clearSession, getStoredToken, getStoredUser } from '../../api/authStorage'
 import { getEvents } from '../../api/events'
+import { useAuth } from '../../context/useAuth'
 import AdminNav from './AdminNav'
 import './AdminPage.css'
 import './AdminUsersPage.css'
@@ -50,8 +50,7 @@ function formatDate(value) {
 
 function AdminUsersPage() {
   const navigate = useNavigate()
-  const storedUser = getStoredUser()
-  const isAdmin = Boolean(getStoredToken() && storedUser?.role === 'ADMIN')
+  const { signOut } = useAuth()
   const [users, setUsers] = useState([])
   const [events, setEvents] = useState([])
   const [registrations, setRegistrations] = useState([])
@@ -59,7 +58,7 @@ function AdminUsersPage() {
   const [registrationForm, setRegistrationForm] = useState(EMPTY_REGISTRATION)
   const [editingUserId, setEditingUserId] = useState(null)
   const [filters, setFilters] = useState({ eventId: '', status: '' })
-  const [isLoading, setIsLoading] = useState(isAdmin)
+  const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -67,13 +66,13 @@ function AdminUsersPage() {
   const handleApiError = useCallback(
     (err) => {
       if (err.status === 401 || err.status === 403) {
-        clearSession()
-        navigate('/admin', { replace: true })
+        signOut()
+        navigate('/login', { replace: true })
       } else {
         setError(err.message)
       }
     },
-    [navigate]
+    [navigate, signOut]
   )
 
   const loadData = useCallback(async () => {
@@ -96,27 +95,26 @@ function AdminUsersPage() {
   }, [filters, handleApiError])
 
   useEffect(() => {
-    if (!isAdmin) return undefined
-    let isCurrent = true
+    let isCancelled = false
 
-    Promise.all([getUsers(), getEvents(), getRegistrations()])
+    Promise.all([getUsers(), getEvents(), getRegistrations(filters)])
       .then(([usersData, eventsData, registrationsData]) => {
-        if (!isCurrent) return
+        if (isCancelled) return
         setUsers(usersData)
         setEvents(eventsData)
         setRegistrations(registrationsData)
       })
       .catch((err) => {
-        if (isCurrent) handleApiError(err)
+        if (!isCancelled) handleApiError(err)
       })
       .finally(() => {
-        if (isCurrent) setIsLoading(false)
+        if (!isCancelled) setIsLoading(false)
       })
 
     return () => {
-      isCurrent = false
+      isCancelled = true
     }
-  }, [handleApiError, isAdmin])
+  }, [filters, handleApiError])
 
   const stats = useMemo(
     () => ({
@@ -226,17 +224,8 @@ function AdminUsersPage() {
     }
   }
 
-  async function changeFilters(nextFilters) {
+  function changeFilters(nextFilters) {
     setFilters(nextFilters)
-    setIsLoading(true)
-    setError('')
-    try {
-      setRegistrations(await getRegistrations(nextFilters))
-    } catch (err) {
-      handleApiError(err)
-    } finally {
-      setIsLoading(false)
-    }
   }
 
   async function removeRegistration(registration) {
@@ -257,8 +246,6 @@ function AdminUsersPage() {
     }
   }
 
-  if (!isAdmin) return <Navigate to="/admin" replace />
-
   return (
     <main className="admin-page users-admin-page">
       <header className="admin-header">
@@ -267,16 +254,6 @@ function AdminUsersPage() {
           <h1>Utilisateurs & inscriptions</h1>
           <p>Gérez les comptes, les permissions et la participation aux événements.</p>
         </div>
-        <button
-          className="ghost-button"
-          type="button"
-          onClick={() => {
-            clearSession()
-            navigate('/admin', { replace: true })
-          }}
-        >
-          Déconnexion
-        </button>
       </header>
 
       <AdminNav />
