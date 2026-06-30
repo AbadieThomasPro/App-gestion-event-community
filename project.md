@@ -135,8 +135,9 @@ Importer `prisma` depuis ce fichier partout où on a besoin du client (au lieu d
 | `DATABASE_URL` | connexion pooled Neon (prod) | connexion pooled Neon (dev/INT) |
 | `DATABASE_URL_UNPOOLED` | connexion directe Neon (prod) | connexion directe Neon (dev/INT) |
 | `FRONTEND_URL` | URL du projet front en Production | URL preview du front |
-| `JWT_SECRET` | à ajouter quand l'auth sera implémentée | idem |
-| `DISCORD_WEBHOOK_URL` | à ajouter quand les notifs Discord seront implémentées | idem |
+| `JWT_SECRET` | secret aléatoire dédié à la prod | secret aléatoire dédié au preview (différent de la prod) |
+| `DISCORD_WEBHOOK_URL` | URL du webhook Discord (Discord > Paramètres serveur > Intégrations > Webhooks) | idem, peut pointer vers le même salon ou un salon de test |
+| `CRON_SECRET` | secret aléatoire, vérifié sur `GET /cron/reminder` (Vercel l'envoie automatiquement en `Authorization: Bearer`) | idem |
 
 **Projet `frontend`**
 | Variable | Production | Preview |
@@ -177,3 +178,4 @@ Penser aussi à créer l'environnement GitHub `prod` (`Settings > Environments`)
 - Toute nouvelle variable d'env (secret JWT, webhook Discord, etc.) doit être ajoutée à **3 endroits** : `backend/.env` (local), et les paramètres Vercel du projet `backend` en **Production** et en **Preview**.
 - Le client Prisma s'importe toujours depuis `backend/lib/prisma.js`, jamais via `new PrismaClient()` ailleurs.
 - Si une route a besoin de plus de 10s d'exécution, vérifier les limites de durée des fonctions serverless du plan Vercel utilisé (Hobby = 10s par défaut).
+- Les **Vercel Cron Jobs** (champ `crons` de `backend/vercel.json`) ne se déclenchent qu'en environnement **Production**, jamais en Preview — normal de ne rien voir tourner sur une branche `develop`. Le plan Hobby limite en plus à une exécution par jour : toute logique cron doit donc raisonner en fenêtre quotidienne plutôt qu'en temps réel (voir `backend/controllers/cron.controller.js`).

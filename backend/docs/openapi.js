@@ -36,6 +36,55 @@ const eventProperties = {
   updatedAt: { type: 'string', format: 'date-time', readOnly: true },
 }
 
+const registrationProperties = {
+  id: {
+    type: 'string',
+    format: 'uuid',
+    readOnly: true,
+    example: 'b1e6c2a0-7e3b-4f8a-9b8b-9a9d8c7f6e5d',
+  },
+  status: {
+    type: 'string',
+    enum: ['CONFIRMED', 'CANCELLED', 'WAITLISTED'],
+    default: 'CONFIRMED',
+  },
+  userId: {
+    type: 'string',
+    format: 'uuid',
+    readOnly: true,
+    example: '52b38672-bba3-40cc-82c4-7f7df00898b3',
+  },
+  eventId: {
+    type: 'string',
+    format: 'uuid',
+    readOnly: true,
+    example: '1f410c29-9c9b-4c3f-a76c-36bb0b9e1687',
+  },
+  createdAt: { type: 'string', format: 'date-time', readOnly: true },
+}
+
+const userProperties = {
+  id: {
+    type: 'string',
+    format: 'uuid',
+    readOnly: true,
+    example: '52b38672-bba3-40cc-82c4-7f7df00898b3',
+  },
+  email: { type: 'string', format: 'email', example: 'jane@example.com' },
+  name: { type: 'string', example: 'Jane Doe' },
+  role: {
+    type: 'string',
+    enum: ['USER', 'ORGANIZER', 'ADMIN'],
+    default: 'USER',
+  },
+  discordId: { type: 'string', nullable: true, example: null },
+  avatar: { type: 'string', nullable: true, example: null },
+  isActive: { type: 'boolean', default: true },
+  emailVerified: { type: 'boolean', default: false },
+  createdAt: { type: 'string', format: 'date-time', readOnly: true },
+  updatedAt: { type: 'string', format: 'date-time', readOnly: true },
+}
+
 const errorResponses = {
   400: {
     description: 'Données invalides',
@@ -71,8 +120,73 @@ export const openApiDocument = {
     description: 'Documentation des routes de gestion des événements Discord.',
   },
   servers: [{ url: '/', description: 'Serveur courant' }],
-  tags: [{ name: 'Events', description: 'Consultation et gestion des événements' }],
+  tags: [
+    { name: 'Events', description: 'Consultation et gestion des événements' },
+    { name: 'Auth', description: 'Inscription et connexion des utilisateurs' },
+    { name: 'Registrations', description: 'Inscription des utilisateurs aux événements' },
+  ],
   paths: {
+    '/auth/register': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Créer un compte utilisateur',
+        operationId: 'registerUser',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/RegisterInput' },
+            },
+          },
+        },
+        responses: {
+          201: {
+            description: 'Compte créé',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/User' },
+              },
+            },
+          },
+          400: errorResponses[400],
+          409: {
+            description: 'Un compte existe déjà avec cet email',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/auth/login': {
+      post: {
+        tags: ['Auth'],
+        summary: 'Se connecter',
+        operationId: 'loginUser',
+        requestBody: {
+          required: true,
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/LoginInput' },
+            },
+          },
+        },
+        responses: {
+          200: {
+            description: 'Connexion réussie',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/LoginResponse' },
+              },
+            },
+          },
+          400: errorResponses[400],
+          401: errorResponses[401],
+        },
+      },
+    },
     '/events': {
       get: {
         tags: ['Events'],
@@ -204,6 +318,166 @@ export const openApiDocument = {
         },
       },
     },
+    '/events/{id}/register': {
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: "Identifiant UUID de l'événement",
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      get: {
+        tags: ['Registrations'],
+        summary: 'Consulter sa propre inscription à un événement',
+        operationId: 'getMyRegistration',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Inscription (ou null si non inscrit)',
+            content: {
+              'application/json': {
+                schema: {
+                  nullable: true,
+                  allOf: [{ $ref: '#/components/schemas/Registration' }],
+                },
+              },
+            },
+          },
+          401: errorResponses[401],
+          404: {
+            description: 'Événement introuvable',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+      post: {
+        tags: ['Registrations'],
+        summary: "S'inscrire à un événement",
+        operationId: 'registerForEvent',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          201: {
+            description: 'Inscription créée',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Registration' },
+              },
+            },
+          },
+          401: errorResponses[401],
+          404: {
+            description: 'Événement introuvable',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+          409: {
+            description: 'Déjà inscrit ou événement complet',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+      delete: {
+        tags: ['Registrations'],
+        summary: "Se désinscrire d'un événement",
+        operationId: 'unregisterFromEvent',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          204: { description: 'Inscription supprimée' },
+          401: errorResponses[401],
+          404: {
+            description: 'Événement ou inscription introuvable',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+    },
+    '/registrations/me': {
+      get: {
+        tags: ['Registrations'],
+        summary: 'Lister mes inscriptions',
+        operationId: 'getMyRegistrations',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Liste de mes inscriptions, événement inclus',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: {
+                    allOf: [
+                      { $ref: '#/components/schemas/Registration' },
+                      {
+                        type: 'object',
+                        properties: { event: { $ref: '#/components/schemas/Event' } },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+          401: errorResponses[401],
+        },
+      },
+    },
+    '/events/{id}/registrations': {
+      parameters: [
+        {
+          name: 'id',
+          in: 'path',
+          required: true,
+          description: "Identifiant UUID de l'événement",
+          schema: { type: 'string', format: 'uuid' },
+        },
+      ],
+      get: {
+        tags: ['Registrations'],
+        summary: 'Lister les inscrits à un événement',
+        operationId: 'getEventRegistrations',
+        security: [{ bearerAuth: [] }],
+        responses: {
+          200: {
+            description: 'Liste des inscriptions',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'array',
+                  items: { $ref: '#/components/schemas/Registration' },
+                },
+              },
+            },
+          },
+          401: errorResponses[401],
+          403: errorResponses[403],
+          404: {
+            description: 'Événement introuvable',
+            content: {
+              'application/json': {
+                schema: { $ref: '#/components/schemas/Error' },
+              },
+            },
+          },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -249,6 +523,55 @@ export const openApiDocument = {
         required: ['message'],
         properties: {
           message: { type: 'string', example: 'événement introuvable' },
+        },
+      },
+      Registration: {
+        type: 'object',
+        required: ['id', 'status', 'userId', 'eventId', 'createdAt'],
+        properties: registrationProperties,
+      },
+      User: {
+        type: 'object',
+        required: [
+          'id',
+          'email',
+          'name',
+          'role',
+          'isActive',
+          'emailVerified',
+          'createdAt',
+          'updatedAt',
+        ],
+        properties: userProperties,
+      },
+      RegisterInput: {
+        type: 'object',
+        required: ['email', 'password', 'name'],
+        properties: {
+          email: userProperties.email,
+          password: { type: 'string', format: 'password', minLength: 8, example: 'password123' },
+          name: userProperties.name,
+        },
+      },
+      LoginInput: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+          email: userProperties.email,
+          password: { type: 'string', format: 'password', example: 'password123' },
+        },
+      },
+      LoginResponse: {
+        type: 'object',
+        required: ['token', 'user'],
+        properties: {
+          token: {
+            type: 'string',
+            format: 'jwt',
+            readOnly: true,
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+          user: { $ref: '#/components/schemas/User' },
         },
       },
     },

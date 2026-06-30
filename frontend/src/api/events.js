@@ -1,48 +1,43 @@
-import { getToken } from './authStorage'
+import { apiFetch } from './client'
+import { handleResponse } from './handleResponse'
 
-const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3000'
+const FALLBACK_MESSAGE = "la requête sur l'événement a échoué"
 
-async function apiRequest(path, options = {}) {
-  const token = getToken()
-  const response = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  })
-
-  if (response.status === 204) return null
-
-  const data = await response.json()
-  if (!response.ok) {
-    const error = new Error(data.message ?? 'une erreur est survenue')
-    error.status = response.status
-    throw error
-  }
-
-  return data
+export async function getEvents() {
+  const response = await apiFetch('/events')
+  return handleResponse(response, FALLBACK_MESSAGE)
 }
 
-export function getEvents() {
-  return apiRequest('/events')
+export async function getEvent(id) {
+  const response = await apiFetch(`/events/${id}`)
+  return handleResponse(response, FALLBACK_MESSAGE)
 }
 
-export function createEvent(event) {
-  return apiRequest('/events', {
+export async function createEvent(event, token) {
+  const response = await apiFetch('/events', {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(event),
   })
+
+  return handleResponse(response, FALLBACK_MESSAGE)
 }
 
-export function updateEvent(id, event) {
-  return apiRequest(`/events/${id}`, {
+export async function updateEvent(id, event, token) {
+  const response = await apiFetch(`/events/${id}`, {
     method: 'PUT',
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(event),
   })
+
+  return handleResponse(response, FALLBACK_MESSAGE)
 }
 
-export function deleteEvent(id) {
-  return apiRequest(`/events/${id}`, { method: 'DELETE' })
+export async function deleteEvent(id, token) {
+  const response = await apiFetch(`/events/${id}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  })
+
+  return handleResponse(response, FALLBACK_MESSAGE)
 }

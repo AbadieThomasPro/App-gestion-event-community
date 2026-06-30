@@ -31,6 +31,16 @@ beforeEach(() => {
   jest.clearAllMocks()
 })
 
+describe('Swagger', () => {
+  it('expose register et login dans le document OpenAPI', async () => {
+    const res = await request(app).get('/api-docs.json')
+
+    expect(res.status).toBe(200)
+    expect(res.body.paths['/auth/register'].post).toBeDefined()
+    expect(res.body.paths['/auth/login'].post).toBeDefined()
+  })
+})
+
 describe('POST /auth/register', () => {
   it('crée un utilisateur et renvoie 201 sans le mot de passe', async () => {
     prisma.user.findUnique.mockResolvedValue(null)

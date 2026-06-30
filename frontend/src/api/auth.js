@@ -1,19 +1,14 @@
-const API_URL = import.meta.env.VITE_API_URL
+import { apiFetch } from './client'
+import { handleResponse } from './handleResponse'
 
 export async function register({ email, password, name }) {
-  const response = await fetch(`${API_URL}/auth/register`, {
+  const response = await apiFetch('/auth/register', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, name }),
   })
 
-  const data = await response.json()
-
-  if (!response.ok) {
-    throw new Error(data.message ?? "l'inscription a échoué")
-  }
-
-  return data
+  return handleResponse(response, "l'inscription a échoué")
 }
 
 async function readResponse(response) {
@@ -27,18 +22,14 @@ async function readResponse(response) {
 }
 
 export async function getCurrentUser(token) {
-  const response = await fetch(`${API_URL}/auth/me`, {
+  const response = await apiFetch('/auth/me', {
     headers: { Authorization: `Bearer ${token}` },
   })
 
-  if (!response.ok) {
-    throw new Error('session invalide')
-  }
-
-  return response.json()
+  return handleResponse(response, 'session invalide')
 }
 export async function login({ email, password }) {
-  const response = await fetch(`${API_URL}/auth/login`, {
+  const response = await fetch(`/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password }),
@@ -48,7 +39,7 @@ export async function login({ email, password }) {
 }
 
 export async function loginAdmin({ username, password }) {
-  const response = await fetch(`${API_URL}/auth/admin-login`, {
+  const response = await fetch(`/auth/admin-login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password }),
