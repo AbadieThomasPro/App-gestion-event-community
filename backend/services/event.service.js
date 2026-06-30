@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma.js'
 import { HttpError } from '../utils/http-error.js'
+import { sendEventAnnouncement } from './discord.service.js'
 
 const EVENT_STATUSES = ['DRAFT', 'PUBLISHED', 'CANCELLED']
 
@@ -79,6 +80,18 @@ export function listEvents() {
   })
 }
 
+export function listEventsStartingBetween(fromHours, toHours) {
+  const from = new Date(Date.now() + fromHours * 60 * 60 * 1000)
+  const to = new Date(Date.now() + toHours * 60 * 60 * 1000)
+
+  return prisma.event.findMany({
+    where: {
+      status: 'PUBLISHED',
+      date: { gte: from, lt: to },
+    },
+  })
+}
+
 export async function findEvent(id) {
   const event = await prisma.event.findUnique({ where: { id } })
   if (!event) throw new HttpError(404, 'événement introuvable')
@@ -86,13 +99,17 @@ export async function findEvent(id) {
   return event
 }
 
-export function createEvent(body, creatorId) {
-  return prisma.event.create({
+export async function createEvent(body, creatorId) {
+  const event = await prisma.event.create({
     data: {
       ...eventData(body),
       creatorId,
     },
   })
+
+  await sendEventAnnouncement(event)
+
+  return event
 }
 
 export async function updateEvent(id, body) {

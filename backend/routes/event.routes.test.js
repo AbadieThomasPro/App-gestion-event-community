@@ -2,6 +2,7 @@ import request from 'supertest'
 import jwt from 'jsonwebtoken'
 import app from '../app.js'
 import { prisma } from '../lib/prisma.js'
+import * as discordService from '../services/discord.service.js'
 
 jest.mock('../lib/prisma.js', () => ({
   prisma: {
@@ -16,6 +17,10 @@ jest.mock('../lib/prisma.js', () => ({
       delete: jest.fn(),
     },
   },
+}))
+
+jest.mock('../services/discord.service.js', () => ({
+  sendEventAnnouncement: jest.fn().mockResolvedValue(undefined),
 }))
 
 const ORGANIZER = {
@@ -122,6 +127,7 @@ describe('POST /events', () => {
     expect(prisma.event.create).toHaveBeenCalledWith({
       data: expect.objectContaining({ creatorId: ORGANIZER.id, title: EVENT.title }),
     })
+    expect(discordService.sendEventAnnouncement).toHaveBeenCalledWith(EVENT)
   })
 
   it('crée un événement pour un admin', async () => {

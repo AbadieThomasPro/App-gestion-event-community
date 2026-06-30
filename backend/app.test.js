@@ -1,6 +1,7 @@
 import request from 'supertest'
 import app from './app.js'
 import { prisma } from './lib/prisma.js'
+import * as discordService from './services/discord.service.js'
 
 jest.mock('./lib/prisma.js', () => ({
   prisma: {
@@ -8,6 +9,10 @@ jest.mock('./lib/prisma.js', () => ({
       findUnique: jest.fn(),
     },
   },
+}))
+
+jest.mock('./services/discord.service.js', () => ({
+  sendErrorAlert: jest.fn().mockResolvedValue(undefined),
 }))
 
 beforeEach(() => {
@@ -30,6 +35,10 @@ describe('Gestion des erreurs globales', () => {
     expect(res.status).toBe(500)
     expect(res.type).toBe('application/json')
     expect(res.body).toEqual({ message: 'une erreur interne est survenue' })
+    expect(discordService.sendErrorAlert).toHaveBeenCalledWith(
+      expect.any(Error),
+      'POST /auth/login'
+    )
   })
 
   it('renvoie du JSON pour une route inconnue', async () => {
