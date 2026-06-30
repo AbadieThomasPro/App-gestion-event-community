@@ -1,33 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { loginAdmin } from '../../api/auth'
-import { clearSession, getStoredUser, getToken, saveSession } from '../../api/authStorage'
 import { createEvent, deleteEvent, getEvents, updateEvent } from '../../api/events'
+import { useAuth } from '../../context/useAuth'
+import EventForm from '../../components/EventForm/EventForm'
+import {
+  EMPTY_EVENT_FORM_VALUES,
+  eventFormValuesFromEvent,
+} from '../../components/EventForm/eventFormUtils'
 import AdminNav from './AdminNav'
 import './AdminPage.css'
-
-const EMPTY_FORM = {
-  title: '',
-  description: '',
-  date: '',
-  endDate: '',
-  location: '',
-  capacity: '',
-  status: 'DRAFT',
-  discordChannelId: '',
-  discordMessageId: '',
-}
 
 const STATUS_LABELS = {
   DRAFT: 'Brouillon',
   PUBLISHED: 'Publié',
   CANCELLED: 'Annulé',
-}
-
-function toDateTimeLocal(value) {
-  if (!value) return ''
-  const date = new Date(value)
-  const offset = date.getTimezoneOffset()
-  return new Date(date.getTime() - offset * 60_000).toISOString().slice(0, 16)
 }
 
 function formatDate(value) {
@@ -38,14 +23,11 @@ function formatDate(value) {
 }
 
 function AdminPage() {
-  const storedUser = getStoredUser()
-  const hasAdminSession = Boolean(getToken() && storedUser?.role === 'ADMIN')
-  const [isAuthenticated, setIsAuthenticated] = useState(hasAdminSession)
-  const [credentials, setCredentials] = useState({ username: 'admin', password: 'admin' })
+  const { token } = useAuth()
   const [events, setEvents] = useState([])
-  const [form, setForm] = useState(EMPTY_FORM)
+  const [initialValues, setInitialValues] = useState(EMPTY_EVENT_FORM_VALUES)
   const [editingId, setEditingId] = useState(null)
-  const [isLoading, setIsLoading] = useState(hasAdminSession)
+  const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
@@ -64,24 +46,23 @@ function AdminPage() {
   }, [])
 
   useEffect(() => {
-    if (!isAuthenticated) return undefined
+    let isCancelled = false
 
-    let isCurrent = true
     getEvents()
       .then((data) => {
-        if (isCurrent) setEvents(data)
+        if (!isCancelled) setEvents(data)
       })
       .catch((err) => {
-        if (isCurrent) setError(err.message)
+        if (!isCancelled) setError(err.message)
       })
       .finally(() => {
-        if (isCurrent) setIsLoading(false)
+        if (!isCancelled) setIsLoading(false)
       })
 
     return () => {
-      isCurrent = false
+      isCancelled = true
     }
-  }, [isAuthenticated])
+  }, [])
 
   const stats = useMemo(
     () => ({
@@ -92,46 +73,9 @@ function AdminPage() {
     [events]
   )
 
-  async function handleLogin(event) {
-    event.preventDefault()
-    setError('')
-    setIsLoading(true)
-
-    try {
-      const session = await loginAdmin(credentials)
-      saveSession(session)
-      setIsAuthenticated(true)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  function handleLogout() {
-    clearSession()
-    setIsAuthenticated(false)
-    setEvents([])
-  }
-
-  function handleChange(event) {
-    const { name, value } = event.target
-    setForm((current) => ({ ...current, [name]: value }))
-  }
-
   function startEditing(event) {
     setEditingId(event.id)
-    setForm({
-      title: event.title,
-      description: event.description,
-      date: toDateTimeLocal(event.date),
-      endDate: toDateTimeLocal(event.endDate),
-      location: event.location,
-      capacity: event.capacity ?? '',
-      status: event.status,
-      discordChannelId: event.discordChannelId ?? '',
-      discordMessageId: event.discordMessageId ?? '',
-    })
+    setInitialValues(eventFormValuesFromEvent(event))
     setNotice('')
     setError('')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -139,39 +83,25 @@ function AdminPage() {
 
   function resetForm() {
     setEditingId(null)
-    setForm(EMPTY_FORM)
+    setInitialValues(EMPTY_EVENT_FORM_VALUES)
   }
 
-  async function handleSubmit(event) {
-    event.preventDefault()
+  async function handleSubmit(payload) {
     setIsSaving(true)
     setError('')
     setNotice('')
 
-    const payload = {
-      ...form,
-      date: new Date(form.date).toISOString(),
-      endDate: form.endDate ? new Date(form.endDate).toISOString() : null,
-      capacity: form.capacity ? Number(form.capacity) : null,
-      discordChannelId: form.discordChannelId || null,
-      discordMessageId: form.discordMessageId || null,
-    }
-
     try {
       if (editingId) {
-        await updateEvent(editingId, payload)
+        await updateEvent(editingId, payload, token)
         setNotice('Événement modifié avec succès.')
       } else {
-        await createEvent(payload)
+        await createEvent(payload, token)
         setNotice('Événement créé avec succès.')
       }
       resetForm()
       await loadEvents()
     } catch (err) {
-      if (err.status === 401 || err.status === 403) {
-        clearSession()
-        setIsAuthenticated(false)
-      }
       setError(err.message)
     } finally {
       setIsSaving(false)
@@ -185,60 +115,13 @@ function AdminPage() {
     setNotice('')
 
     try {
-      await deleteEvent(event.id)
+      await deleteEvent(event.id, token)
       setNotice('Événement supprimé.')
       if (editingId === event.id) resetForm()
       await loadEvents()
     } catch (err) {
       setError(err.message)
     }
-  }
-
-  if (!isAuthenticated) {
-    return (
-      <main className="admin-login">
-        <div className="admin-login-card">
-          <div className="admin-mark">EC</div>
-          <p className="eyebrow">Espace sécurisé</p>
-          <h1>Administration</h1>
-          <p className="login-intro">
-            Connectez-vous pour créer et gérer les événements de la communauté.
-          </p>
-
-          <form onSubmit={handleLogin}>
-            <label htmlFor="admin-username">Identifiant</label>
-            <input
-              id="admin-username"
-              value={credentials.username}
-              onChange={(event) =>
-                setCredentials((current) => ({ ...current, username: event.target.value }))
-              }
-              autoComplete="username"
-              required
-            />
-
-            <label htmlFor="admin-password">Mot de passe</label>
-            <input
-              id="admin-password"
-              type="password"
-              value={credentials.password}
-              onChange={(event) =>
-                setCredentials((current) => ({ ...current, password: event.target.value }))
-              }
-              autoComplete="current-password"
-              required
-            />
-
-            {error && <p className="message error-message">{error}</p>}
-
-            <button className="primary-button" type="submit" disabled={isLoading}>
-              {isLoading ? 'Connexion…' : 'Accéder à la gestion'}
-            </button>
-          </form>
-          <p className="temporary-access">Accès temporaire : admin / admin</p>
-        </div>
-      </main>
-    )
   }
 
   return (
@@ -249,9 +132,6 @@ function AdminPage() {
           <h1>Gestion des événements</h1>
           <p>Créez, publiez et mettez à jour les rendez-vous de la communauté.</p>
         </div>
-        <button className="ghost-button" type="button" onClick={handleLogout}>
-          Déconnexion
-        </button>
       </header>
 
       <AdminNav />
@@ -271,11 +151,7 @@ function AdminPage() {
         </article>
       </section>
 
-      {(error || notice) && (
-        <p className={`message ${error ? 'error-message' : 'success-message'}`}>
-          {error || notice}
-        </p>
-      )}
+      {notice && <p className="message success-message">{notice}</p>}
 
       <div className="admin-layout">
         <section className="event-form-panel">
@@ -284,105 +160,17 @@ function AdminPage() {
               <p className="eyebrow">{editingId ? 'Modification' : 'Nouvel événement'}</p>
               <h2>{editingId ? 'Modifier l’événement' : 'Créer un événement'}</h2>
             </div>
-            {editingId && (
-              <button className="text-button" type="button" onClick={resetForm}>
-                Annuler
-              </button>
-            )}
           </div>
 
-          <form className="event-form" onSubmit={handleSubmit}>
-            <label className="full-field">
-              Titre
-              <input name="title" value={form.title} onChange={handleChange} required />
-            </label>
-
-            <label className="full-field">
-              Description
-              <textarea
-                name="description"
-                rows="4"
-                value={form.description}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              Date de début
-              <input
-                name="date"
-                type="datetime-local"
-                value={form.date}
-                onChange={handleChange}
-                required
-              />
-            </label>
-
-            <label>
-              Date de fin
-              <input
-                name="endDate"
-                type="datetime-local"
-                value={form.endDate}
-                onChange={handleChange}
-              />
-            </label>
-
-            <label>
-              Lieu
-              <input name="location" value={form.location} onChange={handleChange} required />
-            </label>
-
-            <label>
-              Capacité
-              <input
-                name="capacity"
-                type="number"
-                min="1"
-                value={form.capacity}
-                onChange={handleChange}
-                placeholder="Illimitée"
-              />
-            </label>
-
-            <label>
-              Statut
-              <select name="status" value={form.status} onChange={handleChange}>
-                <option value="DRAFT">Brouillon</option>
-                <option value="PUBLISHED">Publié</option>
-                <option value="CANCELLED">Annulé</option>
-              </select>
-            </label>
-
-            <label>
-              ID du salon Discord
-              <input
-                name="discordChannelId"
-                value={form.discordChannelId}
-                onChange={handleChange}
-                placeholder="Optionnel"
-              />
-            </label>
-
-            <label className="full-field">
-              ID du message Discord
-              <input
-                name="discordMessageId"
-                value={form.discordMessageId}
-                onChange={handleChange}
-                placeholder="Optionnel"
-              />
-            </label>
-
-            <button className="primary-button full-field" type="submit" disabled={isSaving}>
-              {isSaving
-                ? 'Enregistrement…'
-                : editingId
-                  ? 'Enregistrer les modifications'
-                  : 'Créer l’événement'}
-            </button>
-          </form>
+          <EventForm
+            key={editingId ?? 'new'}
+            initialValues={initialValues}
+            onSubmit={handleSubmit}
+            isSubmitting={isSaving}
+            error={error}
+            submitLabel={editingId ? 'Enregistrer les modifications' : 'Créer l’événement'}
+            onCancel={editingId ? resetForm : undefined}
+          />
         </section>
 
         <section className="event-list-panel">

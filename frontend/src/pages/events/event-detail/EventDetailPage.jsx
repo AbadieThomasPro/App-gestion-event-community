@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { deleteEvent, getEvent } from '../../api/events'
+import { deleteEvent, getEvent } from '../../../api/events'
 import {
   getMyRegistrationForEvent,
   registerForEvent,
   unregisterFromEvent,
-} from '../../api/registrations'
-import { useAuth } from '../../context/useAuth'
+} from '../../../api/registrations'
+import { useAuth } from '../../../context/useAuth'
 import './EventDetailPage.css'
 
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', {

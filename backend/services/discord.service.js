@@ -43,7 +43,25 @@ export function sendEventReminder(event) {
   )
 }
 
+// Throttle best-effort : une fonction serverless garde cet état en mémoire tant que
+// l'instance reste "chaude", ce qui suffit à éviter le spam lors d'une panne soutenue
+// (ex. base de données injoignable, chaque requête en erreur). Ce n'est pas garanti
+// entre deux instances froides distinctes, mais ça reste la meilleure option sans
+// dépendance externe (Redis, etc.) sur ce projet.
+const ERROR_ALERT_COOLDOWN_MS = 5 * 60 * 1000
+let lastErrorAlertAt = 0
+
 export function sendErrorAlert(error, context) {
+  const now = Date.now()
+  if (now - lastErrorAlertAt < ERROR_ALERT_COOLDOWN_MS) {
+    return Promise.resolve()
+  }
+  lastErrorAlertAt = now
+
   const where = context ? ` (${context})` : ''
   return sendDiscordMessage(`🚨 **Erreur critique**${where}\n\`\`\`${error.message}\`\`\``)
+}
+
+export function _resetErrorAlertThrottle() {
+  lastErrorAlertAt = 0
 }

@@ -2,13 +2,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import MyRegistrationsPage from './MyRegistrationsPage'
-import { AuthProvider } from '../../context/AuthContext'
-import { saveSession } from '../../api/authStorage'
-import * as registrationsApi from '../../api/registrations'
-import * as authApi from '../../api/auth'
+import { AuthProvider } from '../../../context/AuthContext'
+import { saveSession } from '../../../api/authStorage'
+import * as registrationsApi from '../../../api/registrations'
+import * as authApi from '../../../api/auth'
 
-vi.mock('../../api/registrations')
-vi.mock('../../api/auth')
+vi.mock('../../../api/registrations')
+vi.mock('../../../api/auth')
 
 const USER = { id: 'user-1', name: 'Bob', email: 'bob@example.com', role: 'USER' }
 

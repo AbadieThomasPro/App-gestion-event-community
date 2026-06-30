@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getMyRegistrations } from '../../api/registrations'
-import { useAuth } from '../../context/useAuth'
-import './ListEventPage.css'
+import { getMyRegistrations } from '../../../api/registrations'
+import { useAuth } from '../../../context/useAuth'
+import '../list-event/ListEventPage.css'
 
 const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
   dateStyle: 'medium',

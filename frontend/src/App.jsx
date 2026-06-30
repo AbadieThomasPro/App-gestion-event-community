@@ -1,10 +1,10 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import RequireAuth from './components/RequireAuth'
-import ListEventPage from './pages/events/ListEventPage'
-import EventDetailPage from './pages/events/EventDetailPage'
-import EventFormPage from './pages/events/EventFormPage'
-import MyRegistrationsPage from './pages/events/MyRegistrationsPage'
+import ListEventPage from './pages/events/list-event/ListEventPage'
+import EventDetailPage from './pages/events/event-detail/EventDetailPage'
+import EventFormPage from './pages/events/event-form/EventFormPage'
+import MyRegistrationsPage from './pages/events/my-registrations/MyRegistrationsPage'
 import LoginPage from './pages/login/LoginPage'
 import RegisterPage from './pages/register/RegisterPage'
 import AdminPage from './pages/admin/AdminPage'
@@ -16,9 +16,23 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/admin"
+            element={
+              <RequireAuth roles={['ADMIN']}>
+                <AdminPage />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <RequireAuth roles={['ADMIN']}>
+                <AdminUsersPage />
+              </RequireAuth>
+            }
+          />
           <Route
             path="/"
             element={

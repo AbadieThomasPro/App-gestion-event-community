@@ -250,7 +250,7 @@ Le back-end poste automatiquement des messages sur un webhook Discord (`backend/
 
 - **Annonce de création** : un message est envoyé à chaque création d’événement (`POST /events`)
 - **Rappel 24h avant l’événement** : route `GET /cron/reminder`, protégée par un secret (`CRON_SECRET`), déclenchée par un **Vercel Cron Job** (`backend/vercel.json`, champ `crons`) une fois par jour. Comme le plan Hobby de Vercel limite les cron jobs à une exécution quotidienne, la route cible une fenêtre de 24h à 48h avant le début de l’événement plutôt qu’un rappel calé à la minute près. ⚠️ Les Cron Jobs Vercel ne se déclenchent qu’en environnement **Production**.
-- **Erreur critique** : le middleware d’erreur global d’Express (`backend/app.js`) envoie une alerte pour toute erreur 500 non prévue, avec la route concernée
+- **Erreur critique** : le middleware d’erreur global d’Express (`backend/app.js`) envoie une alerte pour toute erreur 500 non prévue, avec la route concernée. Un throttling best-effort (5 min, en mémoire) évite de spammer le webhook si une panne déclenche des erreurs en rafale — ce n'est qu'un best-effort : l'état n'est pas partagé entre plusieurs instances serverless froides
 
 Cela permet d’être rapidement informé en cas de problème, sans dépendre d’un outil de monitoring externe.
 
@@ -347,9 +347,12 @@ docker compose up
 ```
 
 - Frontend : http://localhost:4200
-- Administration des événements : http://localhost:4200/admin  
-  Identifiants temporaires en développement : `admin` / `admin`
-- Utilisateurs et inscriptions : http://localhost:4200/admin/users
+- Administration des événements : http://localhost:4200/admin
+- Utilisateurs et inscriptions : http://localhost:4200/admin/users  
+  Ces deux pages sont réservées au rôle `ADMIN` (garde de rôle dans `frontend/src/components/RequireAuth.jsx`,
+  routes `/admin/*` protégées côté backend par `requireRole('ADMIN')`). Il n'y a pas de compte admin par défaut :
+  pour donner les droits admin à un compte, passer son champ `role` à `ADMIN` via `npx prisma studio`
+  (dans `backend/`) ou directement en base, puis se reconnecter sur `/login` avec ce compte.
 - Backend : http://localhost:3000
 - Adminer (gestion base de données) : http://localhost:8080  
 	(serveur : `db`, utilisateur : `dev`, mot de passe : `dev`)
